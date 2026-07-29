@@ -1,0 +1,29 @@
+<div
+  class="d-flex flex-column align-items-center justify-content-center loading-container"
+  [ngStyle]="{ height: getHeight() }"
+  (click)="reload()"
+>
+  <img
+    *ngIf="!isDark"
+    class="fc-secondary spinner-color"
+    src="../../assets/diamond/spinner-light.svg"
+    [height]="getLoaderHeight()"
+    [width]="getLoaderHeight()"
+  />
+  <img
+    *ngIf="isDark"
+    class="fc-secondary spinner-color"
+    src="../../assets/diamond/spinner-dark.svg"
+    [height]="getLoaderHeight()"
+    [width]="getLoaderHeight()"
+  />
+  <div class="mt-12px fc-secondary" *ngIf="!hideLoadingText">
+    <div class="fc-secondary fs-24px text-align-center">
+      <div *ngIf="titleLoadingText">{{ titleLoadingText }}</div>
+      <div *ngIf="!titleLoadingText">{{ "loader.loading" | transloco }}</div>
+    </div>
+    <div *ngIf="subtitleLoadingText">
+      <div class="fc-secondary fs-15px text-center">{{ subtitleLoadingText }}</div>
+    </div>
+  </div>
+</div>

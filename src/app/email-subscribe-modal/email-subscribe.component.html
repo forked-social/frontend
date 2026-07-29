@@ -1,0 +1,22 @@
+<div class="modal-header">
+  <div class="modal-header-x" (click)="closeModal()">
+    <i-feather name="x"></i-feather>
+  </div>
+</div>
+
+<div class="buy-deso__container p-16px">
+  <div class="d-flex flex-column align-items-center">
+    <div class="fs-24px font-weight-bold fc-default pt-2">Diamond has push notifications!</div>
+    <div class="fs-18px font-weight-bold fc-muted pt-1">
+      Stay up-to-date on all of your creator activity & earnings!
+    </div>
+    <div class="d-flex w-100 align-items-center justify-content-center pt-4">
+      <div>
+        <button (click)="subscribeToPushNotifications()" class="ml-auto btn btn-primary w-100">
+          <span *ngIf="this.isProcessing"><i class="fas fa-spinner fa-spin ml-5px"></i></span>
+          <span *ngIf="!this.isProcessing">Subscribe to Push Notifications</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

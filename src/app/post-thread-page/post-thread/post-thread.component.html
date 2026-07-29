@@ -1,0 +1,125 @@
+<!-- FIXME: TODO: post threads: loading skeletons -->
+<div *ngIf="currentPost" class="d-flex flex-column">
+  <div class="post-thread__container">
+    <div
+      class="d-flex align-items-center justify-content-between post-thread__header"
+      *ngIf="!hideHeader && !globalVars.isMobile()"
+    >
+      <div class="d-flex align-items-center">
+        <top-bar-mobile-navigation-control class="mr-15px d-lg-none d-inline-block"></top-bar-mobile-navigation-control>
+
+        <div>
+          <i-feather name="arrow-left" (click)="location.back()"></i-feather>
+          <span>{{ globalVars.addOwnershipApostrophe(currentPost.ProfileEntryResponse?.Username || currentPost.PosterPublicKeyBase58Check) }} Post</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngFor="let parentPost of currentPost.ParentPosts; let i = index" [attr.data-index]="i">
+      <!--  afterCommentCreatedCallback explanation: Here, the "post" is a top-level post. A new comment on a -->
+      <!--  top-level post should be prepended to the post's list of comments -->
+      <!-- NOTE: if a parent post is deleted on the thread page it just gets removed from the UI -->
+      <feed-post
+        [post]="parentPost"
+        [includePaddingOnPost]="true"
+        [contentShouldLinkToThread]="true"
+        [afterCommentCreatedCallback]="updateParentCommentCountAndShowToast.bind(this, parentPost)"
+        [isParentPostInThread]="true"
+        [showThreadConnectionLine]="true"
+        [isOnThreadPage]="true"
+        [blocked]="isPostBlocked(parentPost)"
+        (userBlocked)="afterUserBlocked($event)"
+      ></feed-post>
+    </div>
+
+    <div class="border-bottom border-color-grey" *ngIf="!hideCurrentPost">
+      <!--  afterCommentCreatedCallback explanation: Here, the "post" is a top-level post. A new comment on a -->
+      <!--  top-level post should be prepended to the post's list of comments -->
+      <feed-post
+        [post]="currentPost"
+        [includePaddingOnPost]="true"
+        [contentShouldLinkToThread]="true"
+        [afterCommentCreatedCallback]="prependToCommentList.bind(this)"
+        [isParentPostInThread]="true"
+        [showLeftSelectedBorder]="false"
+        [showInteractionDetails]="true"
+        [hasReadMoreRollup]="false"
+        [blocked]="isPostBlocked(currentPost)"
+        (postDeleted)="onCurrentPostHidden()"
+        (userBlocked)="afterUserBlocked($event)"
+      ></feed-post>
+    </div>
+  </div>
+
+  <div class="post-thread__comment-container" id="comment-scroller">
+    <div #uiScroll *uiScroll="let thread of datasource; let i = index" [attr.data-index]="i">
+      <div
+        class="post-thread__single-comment"
+        [ngClass]="{ 'first-item': i === 0, 'last-item': i === threadManager.threadCount - 1 }"
+      >
+        <!--  afterCommentCreatedCallback explanation: Here, the "post" is a comment. A new comment on a -->
+        <!--  comment ("original comment") should be prepended to the original comment's list of comments (i.e. subcomments).-->
+        <feed-post
+          [includePaddingOnPost]="true"
+          [post]="thread.parent"
+          [parentPost]="currentPost"
+          [contentShouldLinkToThread]="true"
+          [showIconRow]="true"
+          [showReplyingToContent]="true"
+          [afterCommentCreatedCallback]="appendToSubcommentList.bind(this, thread.parent, thread.parent)"
+          [isThreaded]="!!thread.children.length"
+          [hasThreadIndicator]="!!thread.children.length"
+          [isOnThreadPage]="true"
+          [blocked]="isPostBlocked(thread.parent)"
+          (postDeleted)="onThreadParentHidden(thread.parent)"
+          (userBlocked)="afterUserBlocked($event)"
+        ></feed-post>
+
+        <div *ngFor="let subcommentPost of thread.children; let j = index" [attr.data-index]="j">
+          <div class="post-thread__subcomment-container" *ngIf="!isPostBlocked(thread.parent)">
+            <!--  afterCommentCreatedCallback explanation: Here, the "post" is a subcomment. A new comment on a -->
+            <!--  subcomment should be appended to the parent (commentPost)'s list of subComments.-->
+            <feed-post
+              [includePaddingOnPost]="true"
+              [post]="subcommentPost"
+              [parentPost]="thread.children[j - 1] || thread.parent"
+              [contentShouldLinkToThread]="true"
+              [showIconRow]="true"
+              [showDropdown]="true"
+              [showReplyingToContent]="true"
+              [isThreaded]="true"
+              [hasThreadIndicator]="j !== thread.children.length - 1"
+              [afterCommentCreatedCallback]="appendToSubcommentList.bind(this, thread.children[j], thread.parent)"
+              [isOnThreadPage]="true"
+              [isThreadChild]="true"
+              [blocked]="isPostBlocked(subcommentPost)"
+              (postDeleted)="onSubcommentHidden(subComment, thread.children[j - 1] || thread.parent, thread)"
+              (userBlocked)="afterUserBlocked($event)"
+            >
+              <ng-container *ngIf="j === thread.children.length - 1 && subcommentPost.CommentCount" feed-post-footer>
+                <div *ngIf="isLoadingMoreReplies" class="post-thread__see-more-loader">
+                  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+                </div>
+                <button
+                  *ngIf="!isLoadingMoreReplies"
+                  class="post-thread__see-more-button"
+                  (click)="loadMoreReplies(thread, subcommentPost)"
+                  #seeMoreReplies
+                >
+                  {{ "post_thread.see_more" | transloco }}
+                </button>
+              </ng-container>
+            </feed-post>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="isLoadingMoreTopLevelComments" class="p-5 text-center">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p class="text-secondary fs-14px">Loading more comments...</p>
+    </div>
+  </div>
+  <!-- Bottom spacer for PWA apps-->
+  <div *ngIf="globalVars.windowIsPWA() && globalVars.isMobile()" class="mt-20px"></div>
+  <div class="global__bottom-bar-mobile-height"></div>
+</div>

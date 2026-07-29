@@ -1,0 +1,39 @@
+<div class="w-100 d-flex">
+  <div
+    class="left-bar-active-indicator"
+    [routerLink]="[link]"
+    routerLinkActive
+    #rla="routerLinkActive"
+    [ngClass]="{ 'left-bar-active-indicator-active': rla.isActive }"
+  ></div>
+  <div
+    [routerLink]="[link]"
+    routerLinkActive
+    #rla="routerLinkActive"
+    [ngClass]="{ 'left-bar-active': rla.isActive }"
+    queryParamsHandling="merge"
+    class="d-flex justify-content-center align-items-center left-bar-button left-bar-link"
+  >
+    <!-- I couldn't get "open in new tab" to work without the "; true" in (click) -->
+    <a
+      class="cursor-pointer fs-17px"
+      (click)="globalVars.isLeftBarMobileOpen = false; (true)"
+      [routerLink]="[link]"
+      [queryParams]="_queryParamsForLink(link)"
+      queryParamsHandling="merge"
+    >
+      <span>
+        <i-feather *ngIf="iconName" name="{{ iconName }}"></i-feather>
+        <span *ngIf="isUnread"></span>
+      </span>
+      {{ buttonLabel }}
+    </a>
+    <div
+      *ngIf="hasNotifications && globalVars.unreadNotifications !== 0 && notificationType === 'notifications'"
+      class="ml-5px fs-12px notification p-0px position-relative"
+      style="padding: 0px"
+    >
+      {{ globalVars.unreadNotifications > 99 ? "99+" : globalVars.unreadNotifications }}
+    </div>
+  </div>
+</div>

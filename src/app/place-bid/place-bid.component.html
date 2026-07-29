@@ -1,0 +1,178 @@
+<div app-theme class="nft-modal-container p-15px">
+  <div class="w-100 d-flex justify-content-between nft-modal__header">
+    <div class="d-flex align-items-center">
+      {{ isSelectingSerialNumber ? "Select an edition" : showBuyNowConfirmation ? "Buy NFT" : "Place a bid" }}
+    </div>
+  </div>
+  <simple-center-loader *ngIf="loading"></simple-center-loader>
+  <div *ngIf="!loading">
+    <div *ngIf="biddableSerialNumbers?.length" [ngClass]="{ 'd-none': !showSelectedSerialNumbers }">
+      <div class="fs-15px text-grey5">
+        {{ "place_bid.place_bid" | transloco }} @{{ post.ProfileEntryResponse.Username }}.
+      </div>
+
+      <div *ngIf="!globalVars.isMobile()" class="d-flex justify-content-between nft-modal-bid-details">
+        <div class="col-2 d-flex flex-column m-16px" style="border-right: 1px solid var(--border)">
+          <span>{{ "place_bid.number" | transloco }}</span>
+          <span class="mt-5px">#{{ selectedSerialNumber?.SerialNumber }}</span>
+        </div>
+        <div class="col-5 d-flex flex-column m-16px" style="border-right: 1px solid var(--border)">
+          <span>{{ "place_bid.highest_bid" | transloco }}</span>
+          <span class="mt-5px">
+            {{ globalVars.nanosToDeSo(highBid) }} DESO (~{{ globalVars.nanosToUSD(highBid, 2) }})
+          </span>
+        </div>
+        <div class="col-5 d-flex flex-column m-16px">
+          <span>{{ "place_bid.min_bid_amount" | transloco }}</span>
+          <span class="mt-5px">
+            {{ globalVars.nanosToDeSo(selectedSerialNumber?.MinBidAmountNanos) }} DESO (~{{
+              globalVars.nanosToUSD(selectedSerialNumber?.MinBidAmountNanos, 2)
+            }})
+          </span>
+        </div>
+      </div>
+
+      <div *ngIf="globalVars.isMobile()">
+        <div class="nft-modal-bid-details d-flex justify-content-between p-16px">
+          <span class="font-weight-bold">{{ "place_bid.number" | transloco }}</span>
+          <div>
+            <span class="mt-5px">#{{ selectedSerialNumber?.SerialNumber }}</span>
+            <a class="fc-blue ml-16px" (click)="goBackToSerialSelection()">Change</a>
+          </div>
+        </div>
+        <div class="nft-modal-bid-details d-flex flex-column justify-content-center p-16px">
+          <div class="border-bottom pb-10px d-flex justify-content-between">
+            <span class="font-weight-bold">{{ "place_bid.highest_bid" | transloco }}</span>
+            <span>{{ globalVars.nanosToDeSo(highBid) }} DESO (~{{ globalVars.nanosToUSD(highBid, 2) }})</span>
+          </div>
+          <div class="pt-10px d-flex justify-content-between">
+            <span class="font-weight-bold">{{ "place_bid.min_bid_amount" | transloco }}</span>
+            <span>
+              {{ globalVars.nanosToDeSo(selectedSerialNumber?.MinBidAmountNanos) }} DESO (~{{
+                globalVars.nanosToUSD(selectedSerialNumber?.MinBidAmountNanos, 2)
+              }})
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Availability metadata -->
+      <div class="fs-15px" *ngIf="!loading">
+        <div class="d-flex">
+          <span class="d-lg-inline-block d-block">
+            {{ "place_bid.creator_royalty" | transloco }} {{ post.NFTRoyaltyToCreatorBasisPoints / 100 }}%
+          </span>
+          <span class="d-lg-inline-block d-block ml-30px">
+            {{ "place_bid.coinholder_royalty" | transloco }} {{ post.NFTRoyaltyToCoinBasisPoints / 100 }}%
+          </span>
+        </div>
+      </div>
+
+      <!-- Second separator line -->
+      <div class="py-16px d-flex align-items-center fs-15px text-grey7">
+        <div class="flex-grow-1 nft-modal-separator-2"></div>
+      </div>
+
+      <!-- The bid -->
+      <div class="pb-10px">
+        <span class="fs-17px font-weight-bold">{{ "place_bid.your_bid" | transloco }}</span>
+        <div class="d-flex mt-10px">
+          <div class="d-flex" dropdown (click)="$event.stopPropagation()" container="body" style="align-items: center">
+            <button class="mint-nft__dropdown-btn" role="button" dropdownToggle>
+              {{ minBidCurrency }}
+              <i-feather name="chevron-down" class="feather-small"></i-feather>
+            </button>
+            <div class="dropdown-menu dropdown-menu-right p-0 bc-dropdown-menu place-bid-dropdown" *dropdownMenu>
+              <div>
+                <a
+                  class="dropdown-menu-item fs-12px d-block link--unstyled p-10px feed-post__dropdown-menu-item"
+                  (click)="minBidCurrency = 'USD'"
+                >
+                  USD
+                </a>
+                <a
+                  class="dropdown-menu-item fs-12px d-block link--unstyled p-10px feed-post__dropdown-menu-item"
+                  (click)="minBidCurrency = 'DESO'"
+                >
+                  DESO
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="position-relative w-100">
+            <input
+              [(ngModel)]="minBidInput"
+              (ngModelChange)="updateBidAmount($event)"
+              style="border-radius: 0px 6px 6px 0px"
+              aria-describedby="usd-label"
+              class="mint-nft__input"
+              type="number"
+              min="0"
+              placeholder="0"
+            />
+            <span class="mint-nft__floating-span">{{ bidAmountOtherCurrencyFormatted() }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngFor="let error of errors" class="error-container" style="white-space: pre-line">
+        <i-feather name="alert-circle" class="feather-large"></i-feather>
+        {{ error }}
+      </div>
+      <div
+        [ngClass]="{
+          'floating-bottom-bar': globalVars.isMobile(),
+          'mb-15px': !globalVars.isMobile(),
+          'mt-30px': !globalVars.isMobile()
+        }"
+        class="d-flex align-items-center"
+      >
+        <button
+          class="primary-button font-weight-bold fs-15px br-12px"
+          style="height: 48px; width: 140px; line-height: 15px"
+          (click)="placeBid()"
+          [disabled]="placingBids || errors.length > 0 || !bidAmountDeSo"
+          [class]="{ 'disabled-button': placingBids || errors.length > 0 || !bidAmountDeSo }"
+        >
+          {{ getPlaceBidText() }}
+        </button>
+        <div class="fs-15px ml-30px cursor-pointer" (click)="navigateToBuyDeSo()">
+          {{ "place_bid.buy_deso" | transloco }}
+        </div>
+      </div>
+    </div>
+    <div *ngIf="biddableSerialNumbers?.length && showBuyNowConfirmation">
+      <buy-now-confirmation
+        [post]="post"
+        [postHashHex]="postHashHex"
+        [selectedSerialNumber]="selectedSerialNumber"
+        (closeModal)="closeModal.emit($event)"
+        (goBack)="goBackToSerialSelection()"
+      ></buy-now-confirmation>
+    </div>
+
+    <div *ngIf="biddableSerialNumbers?.length" [ngClass]="{ 'd-none': !isSelectingSerialNumber }">
+      <div class="nft-modal__subtitle mb-10px">{{ "place_bid.multiple_editions" | transloco }}</div>
+      <tab-selector
+        *ngIf="showTabs"
+        [buttonSelector]="false"
+        [tabs]="tabs"
+        [activeTab]="activeTab"
+        (tabClick)="tabClicked($event)"
+      ></tab-selector>
+      <div class="container fs-15px px-0px">
+        <nft-select-serial-number
+          [serialNumbers]="biddableSerialNumbers"
+          [columns]="serialNumberSelectColumns"
+          [postHashHex]="post.PostHashHex"
+          [nftCreatorPublicKeyBase58Check]="post.PosterPublicKeyBase58Check"
+          (serialNumberSelected)="selectSerialNumber($event)"
+          (closeModal)="closeModal.emit($event)"
+        ></nft-select-serial-number>
+      </div>
+    </div>
+    <div *ngIf="!biddableSerialNumbers.length" class="fs-15px">
+      {{ "place_bid.no_serial_available" | transloco }}
+    </div>
+  </div>
+</div>

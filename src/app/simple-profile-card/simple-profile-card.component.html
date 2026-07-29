@@ -1,0 +1,108 @@
+<a
+  class="d-flex align-items-center fs-15px p-10px border-color-grey link--unstyled simple-profile-card__container"
+  [ngClass]="{ 'border-bottom': !singleColumn }"
+  [ngStyle]="{ cursor: !profile?.Username ? 'default' : '' }"
+  (click)="onClick()"
+>
+  <div class="row no-gutters w-100">
+    <div class="d-flex flex-grow-1 mb-0" [ngClass]="{ 'align-items-center': !inTutorial }">
+      <!-- Avatar -->
+      <div class="simple-profile-card__avatar-container position-relative">
+        <div
+          class="simple-profile-card__avatar br-12px"
+          [ngClass]="{
+            nft__avatar: profile?.ExtraData?.NFTProfilePictureUrl
+          }"
+          [avatar]="profile?.PublicKeyBase58Check || pubKeyBase58Check"
+          [nftProfileUrl]="profile?.ExtraData?.NFTProfilePictureUrl"
+        ></div>
+
+        <div
+          *ngIf="reaction"
+          class="profile-reaction position-absolute d-flex align-items-center justify-content-center"
+        >
+          <reactions-image [reaction]="reaction" [size]="14"></reactions-image>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="text-truncate holdings__name fs-15px">
+          <div class="d-flex align-items-center">
+            <div
+              class="fc-default text-truncate holdings__name link--unstyled"
+              [ngClass]="{ 'font-weight-bold': isBold }"
+            >
+              {{ profile?.Username || profile?.PublicKeyBase58Check || pubKeyBase58Check }}
+            </div>
+            <span
+              *ngIf="profile?.IsVerified"
+              (click)="tooltip.toggle()"
+              class="ml-1 mb-1 cursor-pointer text-primary"
+              matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+              [matTooltip]="'This account is verified'"
+              #tooltip="matTooltip"
+            >
+              <i class="fas fa-check-circle fa-md align-middle"></i>
+            </span>
+            <div class="text-grey9 ml-5px" *ngIf="profile?.CoinPriceDeSoNanos && inTutorial">
+              {{ globalVars.nanosToUSD(profile?.CoinPriceDeSoNanos, 2) }}
+            </div>
+          </div>
+          <div class="text-grey9" *ngIf="profile?.CoinPriceDeSoNanos && !inTutorial">
+            {{ globalVars.nanosToUSD(profile?.CoinPriceDeSoNanos, 2) }}
+          </div>
+          <div
+            *ngIf="inTutorial"
+            [matTooltip]="profile?.Description"
+            style="white-space: break-spaces"
+            class="limit-3-lines"
+            matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+          >
+            {{ truncateProfileDescription(profile?.Description) }}
+          </div>
+        </div>
+        <div class="d-flex">
+          <follow-button
+            *ngIf="!hideFollowLink && !!profile"
+            class="ml-10px fs-12px text-grey5"
+            [displayAsLink]="true"
+            [followLinkClass]="'link--unstyled'"
+            [followedPubKeyBase58Check]="profile?.PublicKeyBase58Check || pubKeyBase58Check"
+          ></follow-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex align-items-center justify-content-center mb-0">
+      <div *ngIf="diamondLevel > 0" class="d-flex">
+        <i *ngFor="let diamond of counter(diamondLevel)" class="icon-diamond fs-20px d-block"></i>
+      </div>
+      <div *ngIf="showRepostIcon">
+        <i class="icon-repost fs-32px d-block fc-green"></i>
+      </div>
+      <div *ngIf="showTutorialBuy" (click)="openBuyCreatorCoinModal($event)">
+        <button
+          class="primary-button fs-18px"
+          style="width: 78px; height: 48px"
+          [ngClass]="{
+            wiggle: tutorialWiggle && inTutorial,
+            'disabled-button': !tutorialWiggle && inTutorial && !tutorialBuySelf
+          }"
+        >
+          {{ "simple_profile.buy" | transloco }}
+        </button>
+      </div>
+      <div *ngIf="showTutorialFollow">
+        <span (click)="onboardingFollow()" class="fc-default fs-15px cursor-pointer">
+          {{ tutorialFollowing ? "Unfollow" : "Follow" }}
+        </span>
+      </div>
+      <follow-button
+        *ngIf="followButtonOppositeSide && !!profile"
+        class="ml-10px fs-12px text-grey5"
+        [displayAsLink]="true"
+        [followLinkClass]="'link--unstyled'"
+        [followedPubKeyBase58Check]="profile?.PublicKeyBase58Check || pubKeyBase58Check"
+      ></follow-button>
+    </div>
+  </div>
+</a>

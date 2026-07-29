@@ -1,0 +1,27 @@
+<div class="buy-deso__container">
+  <div class="mint-nft__title mx-16px">
+    {{ "buy_deso.buy_deso" | transloco }}
+  </div>
+  <div class="d-flex flex-column">
+    <div style="flex-grow: 1">
+      <div class="global__mobile-scrollable-section disable-scrollbars">
+        <div *ngIf="globalVars.showBuyWithUSD">
+          <tab-selector
+            [buttonSelector]="false"
+            [tabs]="buyTabs"
+            [activeTab]="activeTab"
+            [linkTabs]="linkTabs"
+            [onTabClick]="this.onTabClick.bind(this)"
+            (tabClick)="this.activeTab = $event"
+          ></tab-selector>
+        </div>
+        <div *ngIf="activeTab === BuyDeSoComponent.BUY_WITH_MEGASWAP">
+          <buy-deso-megaswap [depositTicker]="depositTicker"></buy-deso-megaswap>
+        </div>
+        <!--        <div *ngIf="activeTab === BuyDeSoComponent.BUY_WITH_USD && globalVars.showBuyWithUSD">-->
+        <!--          <buy-deso-usd></buy-deso-usd>-->
+        <!--        </div>-->
+      </div>
+    </div>
+  </div>
+</div>

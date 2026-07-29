@@ -1,0 +1,102 @@
+<!-- Top Bar -->
+<div
+  class="global__top-bar d-flex justify-content-between align-items-center fs-18px font-weight-bold pl-15px border-bottom w-100"
+  style="z-index: 1"
+>
+  <span>{{ "notifications.list.notifications" | transloco }}</span>
+  <i-feather
+    name="more-horizontal"
+    class="feather-medium mr-10px cursor-pointer fs-0px"
+    (click)="showFilters = !showFilters"
+  ></i-feather>
+</div>
+<div *ngIf="showFilters" class="position-relative" style="z-index: 2">
+  <notifications-filter-menu
+    [filteredOutSetInput]="filteredOutSet"
+    [expandNotificationsInput]="expandNotifications"
+    [filteredOutOptions]="filteredOutOptions"
+    (closeFilter)="closeFilterMenu()"
+    (updateSettingsEvent)="updateSettings($event)"
+  ></notifications-filter-menu>
+</div>
+<div *ngIf="loadingFirstPage">
+  <simple-center-loader></simple-center-loader>
+</div>
+<div *ngIf="(!totalItems || totalItems === 0) && !loadingFirstPage" class="d-flex justify-content-center mt-30px">
+  <span>{{ "notifications.list.no_notifications" | transloco }}</span>
+</div>
+<div class="notifications__list-container" id="notification-scroller">
+  <div #uiScroll *uiScroll="let item of datasource; let index = index">
+    <div
+      class="notifications__list-item"
+      [ngClass]="{
+        'last-item': index === totalItems - 1,
+        'border-none': !item.action && !expandNotifications
+      }"
+    >
+      <div class="p-10px cursor-pointer" *ngIf="item.action" [routerLink]="item.link">
+        <div class="d-flex position-relative flex-row align-items-center justify-content-between">
+          <div class="d-flex align-items-center">
+            <div
+              class="notifications__avatar"
+              [ngClass]="{
+                nft__avatar: item?.actor?.ExtraData?.NFTProfilePictureUrl
+              }"
+              [avatar]="item.actor?.PublicKeyBase58Check"
+              [nftProfileUrl]="item?.actor?.ExtraData?.NFTProfilePictureUrl"
+              [routerLink]="['/' + globalVars.RouteNames.USER_PREFIX, item.actor?.Username]"
+            >
+              <div *ngIf="item.icon" class="notifications__icon">
+                <i-feather name="{{ item.icon }}" class="fs-0px {{ item.iconClass }}"></i-feather>
+              </div>
+            </div>
+            <div
+              class="notifications__action"
+              [innerHtml]="
+                !expandNotifications && item.actionDetails ? item.action + ' ' + item.actionDetails : item.action
+              "
+            ></div>
+          </div>
+          <button
+            *ngIf="item.icon === 'send' && item.category === 'nft' && item.nftEntryResponses?.length > 0"
+            class="secondary-button"
+            style="height: 40px"
+            (click)="acceptTransfer($event, item)"
+          >
+            <span class="mr-16px">Accept NFT</span>
+          </button>
+        </div>
+      </div>
+      <div class="cursor-pointer" *ngIf="item.post && expandNotifications">
+        <feed-post
+          [post]="item.post"
+          [includePaddingOnPost]="true"
+          [showReplyingToContent]="!!item.parentPost"
+          [parentPost]="item.parentPost"
+          [contentShouldLinkToThread]="true"
+          [afterCommentCreatedCallback]="afterCommentCallback.bind(this, item, index)"
+          [videoPaused]="pauseVideos"
+        ></feed-post>
+        <div *ngFor="let comment of item.post.Comments">
+          <div class="px-15px pb-15px post-thread__subcomment-container">
+            <feed-post
+              [includePaddingOnPost]="false"
+              [post]="comment"
+              [parentPost]="item.post"
+              [contentShouldLinkToThread]="true"
+              [showIconRow]="false"
+              [showDropdown]="false"
+              [showReplyingToContent]="false"
+              [videoPaused]="pauseVideos"
+            ></feed-post>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <simple-center-loader *ngIf="loadingNextPage && !loadingFirstPage" [height]="200"></simple-center-loader>
+  <!-- SPACER FOR BOTTOM BAR ON MOBILE -->
+  <div class="d-lg-none global__bottom-bar-mobile-height"></div>
+  <div class="global__bottom-bar-mobile-height"></div>
+  <div class="global__bottom-bar-mobile-height"></div>
+</div>

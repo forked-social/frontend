@@ -1,0 +1,73 @@
+<!--
+Note: this view is used in both the sign up flow and at /get-starter-deso
+If you modify it, be sure to QA that both locations are ok.
+
+If I were doing this again, I'd probably try to find a different way to share
+HTML / ts than what I did here. If this is causing problems for you, LMK and I
+can refactor.
+-->
+
+<div *ngIf="screenToShow === SignUpGetStarterDeSoComponent.CREATE_PHONE_NUMBER_VERIFICATION_SCREEN" class="pb-15px">
+  <div *ngIf="displayForSignupFlow">
+    <div class="mt-15px fs-15px fc-muted">STEP 3 of 4</div>
+    <div class="mt-15px fs-24px font-weight-bold">Get Starter DeSo</div>
+
+    <div class="fs-18px mt-15px mb-15px">DESO is a cryptocurrency that's required to use the site.</div>
+  </div>
+
+  <div class="fs-18px">Verify your phone number for free DESO. Your phone number will never be shared with anyone.</div>
+
+  <div class="d-flex mt-15px justify-content-end">
+    <div>
+      <button *ngIf="displayForSignupFlow" (click)="onSkipButtonClicked()" class="plain-button" style="width: 80px">
+        Skip
+      </button>
+      <button (click)="openIdentityPhoneNumberVerification()" class="primary-button ml-10px" style="width: 80px">
+        Verify
+      </button>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="screenToShow === SignUpGetStarterDeSoComponent.COMPLETED_PHONE_NUMBER_VERIFICATION_SCREEN">
+  <div *ngIf="displayForSignupFlow">
+    <div class="mt-15px fs-15px fc-muted">STEP 3 of 4</div>
+    <div class="mt-15px mb-15px fs-24px font-weight-bold">Get Starter DESO</div>
+  </div>
+
+  <div class="fs-15px mb-15px">
+    Your phone number was verified. We sent you a small amount of DESO, which is enough to post and follow people.
+  </div>
+
+  <div *ngIf="displayForSignupFlow; else elseBlock" class="d-flex my-15px justify-content-between">
+    <a (click)="onSkipButtonClicked()" class="btn btn-primary font-weight-bold fs-15px">Next</a>
+  </div>
+  <ng-template #elseBlock>
+    <a
+      [routerLink]="'/' + this.globalVars.RouteNames.BUY_DESO"
+      [queryParams]="{ stepNum: null }"
+      queryParamsHandling="merge"
+      class="btn btn-primary font-weight-bold fs-15px mt-5px mb-5px mr-15px"
+    >
+      Buy DESO
+    </a>
+
+    <a
+      [routerLink]="'/' + this.globalVars.RouteNames.UPDATE_PROFILE"
+      [queryParams]="{ stepNum: null }"
+      queryParamsHandling="merge"
+      class="btn btn-outline-primary font-weight-bold fs-15px mt-5px mr-15px mb-5px"
+    >
+      Update your profile
+    </a>
+
+    <a
+      [routerLink]="'/' + this.globalVars.RouteNames.BROWSE"
+      [queryParams]="{ stepNum: null }"
+      queryParamsHandling="merge"
+      class="btn btn-outline-primary font-weight-bold fs-15px mt-5px mr-15px mb-5px"
+    >
+      Browse
+    </a>
+  </ng-template>
+</div>

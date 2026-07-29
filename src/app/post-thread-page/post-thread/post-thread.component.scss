@@ -1,0 +1,15 @@
+.post-thread__see-more-button {
+  width: 100%;
+  color: var(--text);
+  border: none;
+  padding: 8px 0;
+  background: var(--tile-secondary-bg);
+  font-size: 14px;
+  &:hover {
+    background: var(--nft-section-bg);
+  }
+}
+
+.post-thread__see-more-loader {
+  padding: 12px 30%;
+}

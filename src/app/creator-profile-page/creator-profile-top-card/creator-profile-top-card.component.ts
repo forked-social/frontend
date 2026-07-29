@@ -1,0 +1,244 @@
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
+import { Router } from "@angular/router";
+import { BsModalService } from "ngx-bootstrap/modal";
+import { Subscription, zip } from "rxjs";
+import { map } from "rxjs/operators";
+import { TrackingService } from "src/app/tracking.service";
+import { WelcomeModalComponent } from "src/app/welcome-modal/welcome-modal.component";
+import { FollowChangeObservableResult } from "../../../lib/observable-results/follow-change-observable-result";
+import { AppRoutingModule } from "../../app-routing.module";
+import { BackendApiService } from "../../backend-api.service";
+import { FollowButtonComponent } from "../../follow-button/follow-button.component";
+import { GlobalVarsService } from "../../global-vars.service";
+import { TradeCreatorModalComponent } from "../../trade-creator-page/trade-creator-modal/trade-creator-modal.component";
+import { UpdateProfileModalComponent } from "../../update-profile-page/update-profile-modal/update-profile-modal.component";
+
+@Component({
+  selector: "creator-profile-top-card",
+  templateUrl: "./creator-profile-top-card.component.html",
+  styleUrls: ["./creator-profile-top-card.component.scss"],
+})
+export class CreatorProfileTopCardComponent implements OnInit, OnDestroy {
+  @ViewChild(FollowButtonComponent, { static: false }) childFollowComponent;
+
+  @Input() profile: any;
+
+  // emits the UserUnblocked event
+  @Output() userUnblocked = new EventEmitter();
+
+  // emits the UserUnblocked event
+  @Output() userBlocked = new EventEmitter();
+
+  AppRoutingModule = AppRoutingModule;
+  globalVars: GlobalVarsService;
+  followChangeSubscription: Subscription;
+  followerCount: number = null;
+  followingCount: number = null;
+  refreshFollowingBeingCalled = false;
+  publicKeyIsCopied = false;
+
+  constructor(
+    private _globalVars: GlobalVarsService,
+    private backendApi: BackendApiService,
+    private router: Router,
+    private modalService: BsModalService,
+    private tracking: TrackingService
+  ) {
+    this.globalVars = _globalVars;
+
+    // If the user follows/unfollows this user, update the follower count
+    this.followChangeSubscription = this.globalVars.followChangeObservable.subscribe((followChangeObservableResult) => {
+      this._handleFollowChangeObservableResult(followChangeObservableResult);
+    });
+  }
+
+  showElipsisDropdownMenu() {
+    return (
+      this.globalVars.loggedInUser &&
+      (!this.profileBelongsToLoggedInUser() ||
+        ((!this.profile.IsFeaturedTutorialUpAndComingCreator || !this.profile.IsFeaturedTutorialWellKnownCreator) &&
+          this.globalVars.showSuperAdminTools()))
+    );
+  }
+
+  profileBelongsToLoggedInUser(): boolean {
+    return (
+      this.globalVars.loggedInUser?.ProfileEntryResponse &&
+      this.globalVars.loggedInUser.ProfileEntryResponse.PublicKeyBase58Check === this.profile.PublicKeyBase58Check
+    );
+  }
+
+  ngOnDestroy() {
+    this.followChangeSubscription.unsubscribe();
+  }
+
+  ngOnInit() {
+    this._refreshFollowing();
+  }
+
+  unblock() {
+    this.userUnblocked.emit(this.profile.PublicKeyBase58Check);
+  }
+
+  block() {
+    this.userBlocked.emit(this.profile.PublicKeyBase58Check);
+  }
+
+  reportUser(): void {
+    this.tracking.log("profile : report", {
+      username: this.profile.Username,
+      publicKey: this.profile.PublicKeyBase58Check,
+    });
+    window.open(
+      `https://desoreporting.aidaform.com/account?ReporterPublicKey=${this.globalVars.loggedInUser?.PublicKeyBase58Check}&ReportedAccountPublicKey=${this.profile.PublicKeyBase58Check}&ReportedAccountUsername=${this.profile.Username}`
+    );
+  }
+
+  openModal(event) {
+    // Prevent the post navigation click from occurring.
+    event.stopPropagation();
+
+    const initialState = { loggedInUser: this.globalVars.loggedInUser };
+    // If the user has an account and a profile, open the modal so they can comment.
+    this.modalService.show(UpdateProfileModalComponent, {
+      class: "modal-dialog-centered update-profile-modal",
+      initialState,
+    });
+  }
+
+  messageUser(): void {
+    this.router.navigate(["/" + this.globalVars.RouteNames.INBOX_PREFIX], {
+      queryParams: { username: this.profile.Username },
+    });
+  }
+
+  coinsInCirculation() {
+    return this.profile.CoinEntry.CoinsInCirculationNanos / 1e9;
+  }
+
+  usdMarketCap() {
+    return this.globalVars.abbreviateNumber(
+      this.globalVars.nanosToUSDNumber(this.coinsInCirculation() * this.profile.CoinPriceDeSoNanos),
+      3,
+      true
+    );
+  }
+
+  totalUSDLocked() {
+    return this.globalVars.abbreviateNumber(
+      this.globalVars.nanosToUSDNumber(this.profile.CoinEntry.DeSoLockedNanos),
+      3,
+      true
+    );
+  }
+
+  _handleFollowChangeObservableResult(followChangeObservableResult: FollowChangeObservableResult) {
+    if (followChangeObservableResult.followedPubKeyBase58Check === this.profile.PublicKeyBase58Check) {
+      if (followChangeObservableResult.isFollowing) {
+        this.followerCount += 1;
+      } else {
+        this.followerCount -= 1;
+      }
+    }
+  }
+
+  openBuyCreatorCoinModal(event) {
+    event.stopPropagation();
+
+    if (!this.globalVars.loggedInUser) {
+      this.modalService.show(WelcomeModalComponent, { initialState: { triggerAction: "cc-buy" } });
+      return;
+    }
+
+    const initialState = { username: this.profile.Username, tradeType: this.globalVars.RouteNames.BUY_CREATOR };
+    this.modalService.show(TradeCreatorModalComponent, {
+      class: "modal-dialog-centered buy-deso-modal",
+      initialState,
+    });
+  }
+
+  getCoverImageUrl() {
+    if (this.profile?.ExtraData?.FeaturedImageURL) {
+      return `url(${this.profile?.ExtraData?.FeaturedImageURL})`;
+    } else {
+      return "";
+    }
+  }
+
+  _copyPublicKey() {
+    this.globalVars._copyText(this.profile.PublicKeyBase58Check);
+    this.publicKeyIsCopied = true;
+    setInterval(() => {
+      this.publicKeyIsCopied = false;
+    }, 1000);
+  }
+
+  // Here we're making two calls to fetch one follower and one followed user (and their profiles),
+  // but we only need the counts. Maybe we should allow the GetFollows response to return only
+  // the counts, and maybe both at once.
+  _refreshFollowing() {
+    if (this.refreshFollowingBeingCalled) {
+      return;
+    }
+
+    this.refreshFollowingBeingCalled = true;
+
+    // TODO: need a loading treatment while loading OR need to obtain all follows on pageload
+
+    const getFollowers = this.backendApi
+      .GetFollows(
+        this.profile.Username,
+        "" /* PublicKeyBase58Check */,
+        true /* get followers */,
+        "" /* GetEntriesFollowingUsername */,
+        0 /* NumToFetch */
+      )
+      .pipe(map((res) => res.NumFollowers));
+
+    const getFollowing = this.backendApi
+      .GetFollows(
+        this.profile.Username,
+        "" /* PublicKeyBase58Check */,
+        false /* get following */,
+        "" /* GetEntriesFollowingUsername */,
+        0 /* NumToFetch */
+      )
+      .pipe(map((res) => res.NumFollowers));
+
+    zip(getFollowers, getFollowing).subscribe(
+      (res) => {
+        this.followerCount = res[0];
+        this.followingCount = res[1];
+        this.refreshFollowingBeingCalled = false;
+      },
+      (error) => {
+        this.refreshFollowingBeingCalled = false;
+        // fail silently
+        console.error(error);
+      }
+    );
+  }
+
+  _isLoggedInUserFollowing() {
+    if (!this.globalVars.loggedInUser?.PublicKeysBase58CheckFollowedByUser) {
+      return false;
+    }
+
+    return this.globalVars.loggedInUser.PublicKeysBase58CheckFollowedByUser.includes(this.profile.PublicKeyBase58Check);
+  }
+
+  // When a user blocks a profile, we make sure to unfollow that profile if the user is currently following it.
+  _unfollowIfBlocked() {
+    if (this._isLoggedInUserFollowing()) {
+      this.childFollowComponent.unfollow();
+    }
+  }
+
+  getFoundersRewardPercent() {
+    return this.profile.CoinEntry.CreatorBasisPoints / 100;
+  }
+
+  getUserDetailsLink() {
+    return `https://wallet.deso.com/?user=${this.profile?.Username}&tab=activity`;
+  }
+}

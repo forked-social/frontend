@@ -1,0 +1,32 @@
+<div class="comment-modal">
+  <div class="modal-header">
+    <div class="modal-header-x" (click)="closeModal()">
+      <i-feather name="x"></i-feather>
+    </div>
+  </div>
+
+  <div>
+    <feed-post
+      [post]="parentPost"
+      [includePaddingOnPost]="false"
+      [contentShouldLinkToThread]="false"
+      [showIconRow]="false"
+      [showDropdown]="false"
+      [showReplyingToContent]="false"
+      [hoverable]="false"
+    ></feed-post>
+  </div>
+
+  <div class="fs-12px text-muted feed-create-comment-form__reply-container">
+    {{ quoteReplyText() }}
+    <span>@{{ parentPost.ProfileEntryResponse.Username }}</span>
+  </div>
+
+  <feed-create-post
+    [parentPost]="parentPost"
+    [isQuote]="isQuote"
+    [postRefreshFunc]="afterCommentCreatedCallback"
+    (postUpdated)="postUpdated($event)"
+    (postCreated)="bsModalRef.hide()"
+  ></feed-create-post>
+</div>

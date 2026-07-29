@@ -1,0 +1,29 @@
+<!-- Override .container's max-width property with max-width: inherit-->
+<div class="container fs-15px" style="max-width: inherit">
+  <trade-creator-table [creatorCoinTrade]="creatorCoinTrade" [inTutorial]="inTutorial"></trade-creator-table>
+
+  <div *ngIf="showHighLoadWarning" class="bg-light mt-15px p-15px br-12px text-grey5">
+    Due to high load, {{ creatorCoinTrade.tradeVerbString() | lowercase }}s may take several minutes to process. Please
+    keep your browser open. If you refresh the page and resubmit, your next
+    {{ creatorCoinTrade.tradeVerbString() | lowercase }} will still likely be slow, and you may end up making multiple
+    {{ creatorCoinTrade.tradeVerbString() | lowercase }}s.
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-16px">
+    <div style="min-width: 100px" *ngIf="!inTutorial">
+      <a class="fc-default fs-15px" (click)="backButtonClicked.emit()">Back</a>
+    </div>
+    <button
+      id="tutorial-confirm-buy"
+      class="primary-button"
+      [ngClass]="{ 'btn-loading': creatorCoinTradeBeingCalled, 'disabled-button': buyButtonDisabled }"
+      (click)="_tradeCreatorCoin()"
+    >
+      Confirm
+      {{ creatorCoinTrade.tradeVerbString() }}
+    </button>
+  </div>
+
+  <!--Spacer (for mobile)-->
+  <div class="pb-25px"></div>
+</div>

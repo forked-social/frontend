@@ -1,0 +1,23 @@
+<div
+  [ngStyle]="{ width: deviceType === 'iOS' ? '250px' : '225px' }"
+  class="d-flex justify-content-between flex-column align-items-center direct-to-native-browser-container"
+>
+  <div class="w-100 d-flex justify-content-end mb-5px">
+    <i-feather name="arrow-up" class="feather-large fs-0px"></i-feather>
+  </div>
+  <div *ngIf="deviceType === 'iOS'" class="d-flex flex-column">
+    <div class="d-flex align-items-center">
+      {{ "direct_to_browser_modal.tap_ellipsis" | transloco }}
+      <i-feather name="more-horizontal" class="ml-5px feather-large fs-0px"></i-feather>
+    </div>
+    <div>{{ "direct_to_browser_modal.select_safari" | transloco }}</div>
+  </div>
+  <div *ngIf="deviceType === 'Android'" class="d-flex flex-column">
+    <div class="d-flex align-items-center">
+      {{ "direct_to_browser_modal.tap_ellipsis" | transloco }}
+      <i-feather name="more-vertical" class="ml-5px feather-large fs-0px"></i-feather>
+    </div>
+    <div>{{ "direct_to_browser_modal.select_openwith" | transloco }}</div>
+    <div>{{ "direct_to_browser_modal.select_browser" | transloco }}</div>
+  </div>
+</div>

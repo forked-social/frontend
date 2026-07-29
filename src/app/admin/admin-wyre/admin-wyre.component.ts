@@ -1,0 +1,45 @@
+import { Component } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { BackendApiService } from "../../backend-api.service";
+import { GlobalVarsService } from "../../global-vars.service";
+
+@Component({
+  selector: "admin-wyre",
+  templateUrl: "./admin-wyre.component.html",
+  styleUrls: ["./admin-wyre.component.scss"],
+})
+export class AdminWyreComponent {
+  usernameToFetchWyreOrders = "";
+  loadingWyreOrders = false;
+  wyreOrders = null;
+
+  constructor(
+    private globalVars: GlobalVarsService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private backendApi: BackendApiService
+  ) {}
+
+  _loadWyreOrders(): void {
+    this.loadingWyreOrders = true;
+    let pubKey = "";
+    let username = "";
+    if (this.globalVars.isMaybePublicKey(this.usernameToFetchWyreOrders)) {
+      pubKey = this.usernameToFetchWyreOrders;
+    } else {
+      username = this.usernameToFetchWyreOrders;
+    }
+    this.backendApi
+      .GetWyreWalletOrderForPublicKey(pubKey, username)
+      .subscribe(
+        (res) => {
+          this.wyreOrders = res.WyreWalletOrderMetadataResponses;
+        },
+        (e) => {
+          console.error(e);
+          this.globalVars._alertError(e.toString());
+        }
+      )
+      .add(() => (this.loadingWyreOrders = false));
+  }
+}

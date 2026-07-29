@@ -1,0 +1,162 @@
+<simple-center-loader *ngIf="loading"></simple-center-loader>
+
+<!--Profile not found-->
+<not-found *ngIf="!profile && !loading"></not-found>
+
+<div *ngIf="profile && !loading" class="flex-grow-1">
+  <!-- Top Card With Creator Info -->
+  <creator-profile-top-card
+    *ngIf="profile && !loading"
+    [profile]="profile"
+    (userUnblocked)="unblockUser()"
+    (userBlocked)="blockUser()"
+  ></creator-profile-top-card>
+  <app-earnings-card *ngIf="showEarningsCard && globalVars.isMobile()" [profile]="profile"></app-earnings-card>
+  <!-- Feed Selector -->
+  <tab-selector
+    [tabs]="['Posts', 'Blog', 'Creator Coin', 'Diamonds', 'NFTs']"
+    [activeTab]="activeTab"
+    (tabClick)="_handleTabClick($event)"
+  ></tab-selector>
+
+  <!-- Reserved -->
+  <div *ngIf="showProfileAsReserved() && activeTab === 'Posts'" class="p-15px">
+    <div class="border p-15px d-flex flex-row align-items-center">
+      <i class="far fa-clock fs-1 fc-muted"></i>
+      <div class="ml-25px fc-default">
+        <p class="fs-18px font-weight-bold font-weight-semibold">
+          {{ "creator_profile_details.profile_reserved" | transloco }}
+        </p>
+        <p class="fs-15px text-muted">
+          @{{ profile.Username }} {{ "creator_profile_details.not_joined_yet" | transloco }}
+        </p>
+      </div>
+    </div>
+    <div class="d-flex justify-content-center mt-30px">
+      <div>
+        <p class="font-weight-semibold mb-10px">
+          {{ "creator_profile_details.are_you_on_twitter_0" | transloco }} @{{ profile.Username }}
+          {{ "creator_profile_details.are_you_on_twitter_1" | transloco }}
+        </p>
+        <ol>
+          <li class="font-weight-semibold">
+            <p
+              class="mb-10px font-weight-semibold cursor-pointer"
+              style="text-decoration: line-through"
+              (click)="globalVars.launchLoginFlow('creator-profile-create-new-key-button')"
+            >
+              {{ "creator_profile_details.create_new_key" | transloco }}
+            </p>
+          </li>
+          <li class="font-weight-semibold">
+            <p class="mb-10px font-weight-semibold">
+              <a target="_blank" href="{{ tweetToClaimLink() }}">
+                {{ "creator_profile_details.tweet_key" | transloco }}
+              </a>
+              <span class="d-block fs-12px font-weight-normal">
+                {{ "creator_profile_details.public_key_note" | transloco }}
+              </span>
+            </p>
+          </li>
+          <li class="font-weight-semibold">
+            <p class="mb-10px font-weight-semibold">{{ "creator_profile_details.username_transferred" | transloco }}</p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Posts -->
+  <div *ngIf="profile && activeTab === 'Posts' && !loading">
+    <creator-profile-posts
+      [profile]="profile"
+      [showProfileAsReserved]="showProfileAsReserved()"
+      (blockUser)="userBlocked()"
+    ></creator-profile-posts>
+    <div *ngIf="globalVars.hasUserBlockedCreator(profile.PublicKeyBase58Check)" class="w-100 d-flex p-15px">
+      <span>
+        {{ "creator_profile_details.you_blocked_0" | transloco }} {{ profile.Username
+        }}{{ "creator_profile_details.you_blocked_1" | transloco }}
+        <a (click)="unblock()">{{ "creator_profile_details.unblock_0" | transloco }}</a>
+        {{ "creator_profile_details.unblock_1" | transloco }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Blog -->
+  <div *ngIf="profile && activeTab === 'Blog' && !loading">
+    <creator-profile-blog-posts
+      [profile]="profile"
+      [showProfileAsReserved]="showProfileAsReserved()"
+      (blockUser)="userBlocked()"
+    ></creator-profile-blog-posts>
+    <div *ngIf="globalVars.hasUserBlockedCreator(profile.PublicKeyBase58Check)" class="w-100 d-flex p-15px">
+      <span>
+        {{ "creator_profile_details.you_blocked_0" | transloco }} {{ profile.Username
+        }}{{ "creator_profile_details.you_blocked_1" | transloco }}
+        <a (click)="unblock()">{{ "creator_profile_details.unblock_0" | transloco }}</a>
+        {{ "creator_profile_details.unblock_1" | transloco }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Creator Coin Info -->
+  <div
+    class="w-100 d-flex flex-column creator-profile-details__coin-container"
+    *ngIf="activeTab === 'Creator Coin' && !loading"
+  >
+    <div
+      *ngIf="profile.PublicKeyBase58Check !== globalVars?.loggedInUser?.PublicKeyBase58Check"
+      class="creator-profile-details__coin-info"
+    >
+      <div [ngClass]="{ 'd-flex flex-column': globalVars.isMobile() }">
+        <div
+          class="d-inline-block"
+          [ngClass]="{ 'col-4 ml-0px mb-0': !globalVars.isMobile(), 'ml-16px mb-5px': globalVars.isMobile() }"
+          [ngStyle]="{ 'text-align': globalVars.isMobile() ? 'left' : 'center' }"
+        >
+          <span class="font-weight-bold">≈ {{ (profile.CoinEntry.CoinsInCirculationNanos / 1e9).toFixed(2) }}</span>
+          <span>{{ "creator_profile_details.coins_in_circulation" | transloco }}</span>
+        </div>
+        <div
+          class="d-inline-block align-items-center"
+          [ngClass]="{ 'col-4 ml-0px mb-0': !globalVars.isMobile(), 'ml-16px mb-5px': globalVars.isMobile() }"
+          [ngStyle]="{ 'text-align': globalVars.isMobile() ? 'left' : 'center' }"
+        >
+          <span class="font-weight-bold">≈ {{ totalUSDLocked() }}</span>
+          <span>{{ "creator_profile_details.total_usd_locked" | transloco }}</span>
+        </div>
+        <div
+          class="d-inline-block align-items-center mb-0"
+          [ngClass]="{ 'col-4 ml-0px': !globalVars.isMobile(), 'ml-16px': globalVars.isMobile() }"
+          [ngStyle]="{ 'text-align': globalVars.isMobile() ? 'left' : 'center' }"
+        >
+          <span class="font-weight-bold">≈ {{ usdMarketCap() }}</span>
+          <span>{{ "creator_profile_details.usd_market_cap" | transloco }}</span>
+        </div>
+      </div>
+    </div>
+    <creator-profile-hodlers [profile]="profile"></creator-profile-hodlers>
+    <div class="w-100 p-35px"></div>
+  </div>
+
+  <!-- Diamonds -->
+  <div class="w-100 d-flex flex-column" *ngIf="activeTab === 'Diamonds' && !loading">
+    <creator-diamonds [profile]="profile"></creator-diamonds>
+    <div class="w-100 p-35px"></div>
+  </div>
+
+  <!-- NFTs -->
+  <div class="w-100 d-flex flex-column" *ngIf="activeTab === 'NFTs' && !loading">
+    <creator-profile-nfts
+      [profile]="profile"
+      [showProfileAsReserved]="showProfileAsReserved()"
+      (blockUser)="userBlocked()"
+    ></creator-profile-nfts>
+    <div class="w-100 p-35px"></div>
+  </div>
+</div>
+<!-- Spacer for PWA Apps -->
+<div *ngIf="globalVars.windowIsPWA() && globalVars.isMobile()" class="mt-20px"></div>
+<!-- SPACER FOR BOTTOM BAR ON MOBILE -->
+<div class="global__bottom-bar-mobile-height"></div>

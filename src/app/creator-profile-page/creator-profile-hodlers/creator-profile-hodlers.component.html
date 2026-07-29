@@ -1,0 +1,231 @@
+<div
+  *ngIf="!datasource.adapter.isLoading && datasource.adapter.itemsCount === 0"
+  class="row no-gutters pt-10px creator-profile-details__no-results"
+>
+  <div class="d-flex justify-content-center w-100">
+    <div class="circle-div">
+      <i-feather name="bitclout-circle" class="feather-xlarge"></i-feather>
+    </div>
+  </div>
+  <div class="d-flex justify-content-center w-100">
+    <span>
+      {{ "creator_profile_holders.noone_owns_0" | transloco }} ${{ profile.Username }}
+      {{ "creator_profile_holders.noone_owns_1" | transloco }}
+    </span>
+  </div>
+</div>
+<simple-center-loader *ngIf="datasource.adapter.isLoading && loadingFirstPage"></simple-center-loader>
+<div
+  *ngIf="datasource.adapter.itemsCount > 0"
+  class="w-100 d-flex justify-content-start px-15px fs-15px creator-profile-hodlers__header"
+  [ngStyle]="{
+    'border-radius':
+      profile.PublicKeyBase58Check === globalVars?.loggedInUser?.PublicKeyBase58Check ? '10px 10px 0px 0px' : '0px'
+  }"
+>
+  <div class="font-weight-bold fs-15px pl-0px">
+    {{ "creator_profile_holders.holders_of_0" | transloco }} ${{ profile.Username }}
+    {{ "creator_profile_holders.holders_of_1" | transloco }}
+  </div>
+</div>
+
+<div [ngStyle]="{ height: datasource.adapter.itemsCount > 0 ? 'auto' : '0px' }">
+  <div class="fs-15px flex-grow-1 px-0px">
+    <div
+      *ngIf="datasource.adapter.itemsCount > 0"
+      class="row no-gutters border-bottom border-color-grey fc-muted creator-profile-hodlers__row"
+    >
+      <div class="col-6 d-flex mb-0" [ngClass]="{ 'col-8': globalVars.isMobile() }">
+        {{ "creator_profile_holders.username" | transloco }}
+      </div>
+      <div
+        class="col-3 mb-0"
+        [ngClass]="{ 'col-4 d-flex justify-content-end': globalVars.isMobile() }"
+        [ngStyle]="{ 'padding-right': globalVars.isMobile() ? '16px' : 'auto' }"
+      >
+        {{ "creator_profile_holders.coins_held" | transloco }}
+        <i-feather
+          *ngIf="globalVars.isMobile()"
+          name="info"
+          class="feather-small position-relative ml-8px"
+          style="top: -2px"
+          matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+          [matTooltip]="'Market value is computed as the number of coins times the current price.'"
+          #tooltip="matTooltip"
+          (click)="tooltip.toggle()"
+        ></i-feather>
+      </div>
+      <div class="col-3 mb-0" *ngIf="!globalVars.isMobile()">
+        {{ "creator_profile_holders.market_value" | transloco }}
+        <i-feather
+          name="info"
+          class="feather-small position-relative ml-8px"
+          style="top: -2px"
+          matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+          [matTooltip]="'This is computed as the number of coins times the current price.'"
+          #tooltip="matTooltip"
+          (click)="tooltip.toggle()"
+        ></i-feather>
+      </div>
+    </div>
+    <div #uiScroll *uiScroll="let row of datasource">
+      <div class="row no-gutters p-10px border-bottom mb-0 creator-profile-hodlers__row" *ngIf="!row.totalRow">
+        <div class="col-6 d-flex align-items-center mb-0" [ngClass]="{ 'col-8': globalVars.isMobile() }">
+          <div *ngIf="!row.ProfileEntryResponse" class="d-flex align-items-center">
+            <div
+              class="creator-profile-details__hodler-avatar mr-10px"
+              style="background-image: url('/assets/img/default-profile-pic.png')"
+            ></div>
+            <div class="d-flex flex-column">
+              <span class="text-truncate" [ngStyle]="usernameStyle()">{{ row.HODLerPublicKeyBase58Check }}</span>
+              <div
+                class="text-grey9"
+                style="font-size: 10px"
+                (click)="stopEvent($event); tooltip.toggle()"
+                class="mb-1 cursor-pointer fs-20px text-primary"
+                matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+                [matTooltip]="getTooltipForRow(row)"
+                #tooltip="matTooltip"
+              >
+                <div *ngIf="!row.HasPurchased" class="text-grey9" style="font-size: 10px">
+                  <i-feather name="repeat" class="feather-small pr-5px"></i-feather>
+                  {{ "creator_profile_holders.received" | transloco }}
+                </div>
+                <div *ngIf="row.HasPurchased" class="text-grey9" style="font-size: 10px">
+                  <div
+                    *ngIf="
+                      row.HODLerPublicKeyBase58Check === profile.PublicKeyBase58Check &&
+                        row.ProfileEntryResponse.IsReserved &&
+                        !row.ProfileEntryResponse.IsVerified;
+                      else purchasedCoins
+                    "
+                  >
+                    <i class="far fa-clock fa-md pr-5px font-weight-bold"></i>
+                    {{ "creator_profile_holders.reserved" | transloco }}
+                  </div>
+                  <ng-template #purchasedCoins>
+                    {{ "creator_profile_holders.purchased" | transloco }}
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+          <a
+            *ngIf="row.ProfileEntryResponse"
+            [routerLink]="['/' + globalVars.RouteNames.USER_PREFIX, row.ProfileEntryResponse.Username]"
+            class="d-flex align-items-center link--unstyled"
+          >
+            <div
+              [ngClass]="{
+                nft__avatar: row?.ProfileEntryResponse?.ExtraData?.NFTProfilePictureUrl
+              }"
+              class="creator-profile-details__hodler-avatar mr-10px"
+              [avatar]="row.ProfileEntryResponse.PublicKeyBase58Check"
+              [nftProfileUrl]="row.ProfileEntryResponse?.ExtraData?.NFTProfilePictureUrl"
+            ></div>
+            <div class="d-flex flex-column">
+              <div class="d-flex align-items-center">
+                <span class="text-truncate" [ngStyle]="usernameStyle()">{{ row.ProfileEntryResponse.Username }}</span>
+                <span
+                  *ngIf="row.ProfileEntryResponse.IsReserved && !row.ProfileEntryResponse.IsVerified"
+                  class="d-inline-block ml-1 cursor-pointer lh-12px fc-muted align-middle"
+                  matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+                  [matTooltip]="'This profile is reserved. Click to learn how to claim it.'"
+                >
+                  <i class="far fa-clock fa-md"></i>
+                </span>
+                <span
+                  *ngIf="row.ProfileEntryResponse.IsVerified"
+                  (click)="tooltip.toggle()"
+                  class="ml-1 cursor-pointer text-primary align-middle"
+                  matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+                  [matTooltip]="'This account is verified'"
+                  #tooltip="matTooltip"
+                >
+                  <i-feather name="check-circle" class="feather-small"></i-feather>
+                </span>
+              </div>
+              <div
+                class="text-grey9"
+                style="font-size: 10px"
+                (click)="stopEvent($event); tooltip.toggle()"
+                class="mb-1 cursor-pointer fs-20px text-primary"
+                matTooltipClass="global__mat-tooltip global__mat-tooltip-font-size"
+                [matTooltip]="getTooltipForRow(row)"
+                #tooltip="matTooltip"
+              >
+                <div *ngIf="!row.HasPurchased" class="text-grey9" style="font-size: 10px">
+                  <i-feather name="repeat" class="feather-small pr-5px"></i-feather>
+                  {{ "creator_profile_holders.received" | transloco }}
+                </div>
+                <div *ngIf="row.HasPurchased" class="text-grey9" style="font-size: 10px">
+                  <div
+                    *ngIf="
+                      row.HODLerPublicKeyBase58Check === profile.PublicKeyBase58Check &&
+                        row.ProfileEntryResponse.IsReserved &&
+                        !row.ProfileEntryResponse.IsVerified;
+                      else purchasedCoins
+                    "
+                  >
+                    <i class="far fa-clock fa-md pr-5px font-weight-bold"></i>
+                    {{ "creator_profile_holders.reserved" | transloco }}
+                  </div>
+                  <ng-template #purchasedCoins>
+                    {{ "creator_profile_holders.purchased" | transloco }}
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div
+          class="col-3 d-flex mb-0"
+          [ngClass]="{
+            'col-4 justify-content-center align-items-end flex-column': globalVars.isMobile(),
+            'align-items-center': !globalVars.isMobile()
+          }"
+          [ngStyle]="{ 'padding-right': globalVars.isMobile() ? '16px' : 'auto' }"
+        >
+          <span>{{ (row.BalanceNanos / 1e9).toFixed(4) }}</span>
+          <div class="fc-muted fs-13px" *ngIf="globalVars.isMobile()">
+            ~{{ globalVars.creatorCoinNanosToUSDNaive(row.BalanceNanos, profile.CoinPriceDeSoNanos, true) }}
+          </div>
+        </div>
+        <div class="col-3 d-flex align-items-center mb-0" *ngIf="!globalVars.isMobile()">
+          ≈ {{ globalVars.creatorCoinNanosToUSDNaive(row.BalanceNanos, profile.CoinPriceDeSoNanos, true) }}
+        </div>
+      </div>
+
+      <div class="row no-gutters font-weight-bold creator-profile-hodlers__row total-row" *ngIf="row.totalRow">
+        <div class="col-6 mb-0" [ngClass]="{ 'col-8': globalVars.isMobile() }">Total</div>
+        <div
+          class="col-3 mb-0"
+          [ngClass]="{ 'col-4 d-flex justify-content-end': globalVars.isMobile() }"
+          [ngStyle]="{ 'padding-right': globalVars.isMobile() ? '16px' : 'auto' }"
+        >
+          {{ (profile.CoinEntry.CoinsInCirculationNanos / 1e9).toFixed(4) }}
+          <span *ngIf="globalVars.isMobile()">
+            &nbsp;~{{
+              globalVars.creatorCoinNanosToUSDNaive(
+                profile.CoinEntry.CoinsInCirculationNanos,
+                profile.CoinPriceDeSoNanos,
+                true
+              )
+            }}
+          </span>
+        </div>
+        <div class="col-3 mb-0" *ngIf="!globalVars.isMobile()">
+          ≈
+          {{
+            globalVars.creatorCoinNanosToUSDNaive(
+              profile.CoinEntry.CoinsInCirculationNanos,
+              profile.CoinPriceDeSoNanos,
+              true
+            )
+          }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<simple-center-loader *ngIf="!loadingFirstPage && loadingNextPage" [height]="200"></simple-center-loader>

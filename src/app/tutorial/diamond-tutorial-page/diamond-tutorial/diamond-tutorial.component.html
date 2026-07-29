@@ -1,0 +1,26 @@
+<div class="flex-grow-1 border br-10px" id="diamond-tutorial-container">
+  <div class="tutorial-header">
+    <div class="d-flex justify-content-between">
+      <div class="tutorial-title">Give a Diamond</div>
+      <div class="d-flex align-items-center">
+        <div class="fc-secondary fs-15px">Step 3/4</div>
+        <button class="tutorial-skip-button" (click)="skipDiamondsStep()">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-5px background-color-white">
+    <simple-center-loader *ngIf="loading"></simple-center-loader>
+    <div *ngIf="!loading">
+      <feed-post
+        [post]="post"
+        [includePaddingOnPost]="true"
+        [contentShouldLinkToThread]="false"
+        [showLeftSelectedBorder]="false"
+        [cardStyle]="true"
+        [inTutorial]="true"
+        (diamondSent)="onDiamondSent()"
+      ></feed-post>
+    </div>
+  </div>
+</div>

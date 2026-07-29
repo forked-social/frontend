@@ -1,0 +1,64 @@
+<!--
+  Almost all pages should use this component to support both mobile and desktop views
+  -->
+<div [class]="mobile ? 'global__mobile' : 'global__desktop'">
+  <!-- Top Bar -->
+  <div *ngIf="!mobile" class="desktop-top-bar">
+    <div class="d-flex justify-content-between align-items-center w-100 h-100 desktop-top-bar-width">
+      <a
+        class="link--unstyled d-flex align-items-center ml-15px"
+        (click)="globalVars.isLeftBarMobileOpen = false"
+        [routerLink]="'/' + globalVars.RouteNames.BROWSE"
+        queryParamsHandling="merge"
+      >
+        <img [src]="environment.node.logoAssetDir + 'camelcase_logo_new.svg'" class="deso" style="height: 30px" />
+      </a>
+      <div class="d-flex align-items-center">
+        <div class="position-relative mr-15px" style="width: 343px; height: 48px">
+          <search-bar [resultsUnderBar]="true"></search-bar>
+        </div>
+        <change-account-selector></change-account-selector>
+      </div>
+    </div>
+  </div>
+  <top-bar-mobile-header
+    *ngIf="mobile"
+    [inTutorial]="inTutorial"
+    [simpleTopBar]="simpleTopBar"
+    [title]="title"
+  ></top-bar-mobile-header>
+  <div
+    class="d-flex"
+    id="header-content-spacer"
+    [ngClass]="{ 'logged-out': !globalVars.loggedInUser }"
+    style="margin-top: 60px"
+  >
+    <left-bar *ngIf="!mobile && !onlyContent"></left-bar>
+    <div *ngIf="onlyContent" class="global__nav__flex">
+      <div class="global__nav__fixed">
+        <div class="global__nav__inner"></div>
+      </div>
+    </div>
+
+    <div class="global__content__flex">
+      <div [class]="mobile || hideSidebar ? 'global__content__width' : 'global__center__width'">
+        <div [class]="mobile || hideSidebar ? 'global__content__inner' : 'global__center__inner'">
+          <ng-content></ng-content>
+        </div>
+      </div>
+      <div class="global__sidebar__width" *ngIf="!mobile && !hideSidebar && !onlyContent">
+        <right-bar-creators
+          [inTutorial]="inTutorial"
+          class="global__sidebar__fixed disable-scrollbars"
+        ></right-bar-creators>
+      </div>
+
+      <bottom-bar-mobile
+        [ngClass]="{ 'pwa-bottom-bar-mobile': globalVars.windowIsPWA() && globalVars.isMobile() }"
+        *ngIf="mobile && showBottomBar"
+        class="global__bottom-bar-mobile"
+        [showPostButton]="showPostButton"
+      ></bottom-bar-mobile>
+    </div>
+  </div>
+</div>

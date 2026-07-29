@@ -1,0 +1,133 @@
+<div class="global__nav__width">
+  <div [ngClass]="{ global__nav__fixed: !isMobile, 'pt-20px h-100': globalVars.isMobile() }" *transloco="let t">
+    <div class="global__nav__inner d-flex flex-column">
+      <div *ngIf="isMobile" class="w-100 align-items-center fs-24px font-weight-bold pl-16px pr-25px">
+        <div class="d-flex justify-content-between fc-default">
+          <a
+            class="link--unstyled d-flex align-items-center"
+            (click)="globalVars.isLeftBarMobileOpen = false"
+            [routerLink]="'/' + globalVars.RouteNames.BROWSE"
+            queryParamsHandling="merge"
+          >
+            <img [src]="environment.node.logoAssetDir + 'camelcase_logo_new.svg'" class="deso" style="height: 27px" />
+          </a>
+          <i-feather name="x" class="feather-large cursor-pointer fs-0px" (click)="this.closeMobile.emit()"></i-feather>
+        </div>
+        <div class="pt-20px"></div>
+        <change-account-selector *ngIf="this.globalVars.loggedInUser"></change-account-selector>
+      </div>
+
+      <!-- Left Bar Buttons -->
+      <div [ngClass]="{ 'ml-20px mt-20px': globalVars.isMobile() }" class="left-desktop-selector pt-20px">
+        <left-bar-button
+          [link]="'/' + globalVars.RouteNames.BROWSE"
+          [buttonLabel]="t('left_bar.home')"
+          [iconName]="'home'"
+        ></left-bar-button>
+        <left-bar-button
+          [hasNotifications]="true"
+          [notificationType]="'notifications'"
+          [link]="'/' + globalVars.RouteNames.NOTIFICATIONS"
+          [buttonLabel]="t('left_bar.notifications')"
+          [isUnread]="globalVars.unreadNotifications > 0"
+          [iconName]="globalVars.unreadNotifications > 0 ? 'bell-notification' : 'bell'"
+        ></left-bar-button>
+        <left-bar-button
+          [link]="'/' + globalVars.RouteNames.CREATORS"
+          [buttonLabel]="t('left_bar.buy_creators')"
+          [iconName]="'users'"
+        ></left-bar-button>
+        <left-bar-button
+          *ngIf="this.globalVars.loggedInUser"
+          [link]="'/' + globalVars.RouteNames.BUY_DESO"
+          [buttonLabel]="t('left_bar.buy_deso')"
+          [iconName]="'dollar-sign'"
+        ></left-bar-button>
+        <left-bar-button
+          [hasNotifications]="true"
+          [notificationType]="'messages'"
+          [link]="'/' + globalVars.RouteNames.INBOX_PREFIX"
+          [buttonLabel]="t('left_bar.messages')"
+          [iconName]="'message-square'"
+        ></left-bar-button>
+        <left-bar-button
+          *ngIf="globalVars.loggedInUser?.ProfileEntryResponse?.Username"
+          [link]="AppRoutingModule.profilePath(globalVars.loggedInUser?.ProfileEntryResponse?.Username)"
+          [queryParams]="{ tab: 'posts' }"
+          [buttonLabel]="t('left_bar.my_profile')"
+          [iconName]="'user'"
+        ></left-bar-button>
+        <left-bar-button
+          *ngIf="!globalVars.loggedInUser?.ProfileEntryResponse?.Username"
+          [link]="'/' + globalVars.RouteNames.UPDATE_PROFILE"
+          [buttonLabel]="t('left_bar.my_profile')"
+          [iconName]="'user'"
+        ></left-bar-button>
+        <left-bar-button
+          *ngIf="this.globalVars.loggedInUser"
+          [link]="'/' + globalVars.RouteNames.WALLET"
+          [buttonLabel]="t('left_bar.my_wallet')"
+          [iconName]="'diamond'"
+        ></left-bar-button>
+        <ng-container *ngIf="this.globalVars.loggedInUser">
+          <a
+            class="cursor-pointer w-100 d-flex align-items-center fc-default left-bar-link"
+            style="height: 36px"
+            (click)="displayMore($event)"
+          >
+            <i-feather name="more-horizontal" class="feather-medium fs-0px"></i-feather>
+            <a class="fs-17px fc-default font-weight-bold" style="margin-left: 23px">
+              {{ "left_bar.more" | transloco }}
+            </a>
+          </a>
+          <div class="position-relative">
+            <left-bar-more
+              (closeMore)="hideMore()"
+              [closeLeftBar]="closeLeftBar.bind(this)"
+              *ngIf="showMore"
+            ></left-bar-more>
+          </div>
+        </ng-container>
+        <button *ngIf="!isMobile" class="left-bar__post-button" (click)="openCreatePostModal()">
+          {{ "left_bar.post" | transloco }}
+        </button>
+        <a *ngIf="!globalVars.isMobile()" (click)="this.onCreateBlogPost()" class="btn btn-outline-dark p-2 mt-2 w-80">
+          Blog Post
+        </a>
+      </div>
+      <change-account-selector
+        *ngIf="!this.globalVars.loggedInUser && isMobile"
+        class="mr-20px mb-20px"
+        style="margin-top: auto"
+      ></change-account-selector>
+
+      <div *ngIf="isMobile && !globalVars.windowIsPWA()">
+        <div
+          class="card p-2 mx-2 my-4 d-flex flex-row align-items-center border bg-light"
+          (click)="addAppToHomeScreen()"
+        >
+          <img src="/assets/diamond/icon-192.png" alt="diamong-logo" width="45" class="rounded" />
+          <div class="card-text ml-2">
+            <p class="font-weight-bold small">Download Diamond Mobile</p>
+            <p class="text-secondary small">Add To Your Homescreen</p>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="this.globalVars.loggedInUser && isMobile" style="margin-top: auto">
+        <div class="d-flex justify-content-between left-bar-mobile__deso-price mb-16px mx-16px">
+          <div class="d-flex align-items-center">
+            <img src="assets/diamond/desologo.svg" width="14" height="14" />
+            <span>≈{{ globalVars.desoToUSDExchangeRateToDisplay }} USD</span>
+          </div>
+          <a href="/buy-deso" class="fc-blue fs-15px font-weight-bold">{{ "left_bar.buy" | transloco }}</a>
+        </div>
+        <div class="w-100 border-bottom"></div>
+        <div class="fc-default cursor-pointer p-16px ml-4px" (click)="launchLogoutFlow()">
+          <i-feather name="power" class="feather-medium"></i-feather>
+          <span class="fc-17px font-weight-bold ml-10px">{{ "left_bar.logout" | transloco }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
