@@ -1,0 +1,96 @@
+name: Build and Publish Frontend Image
+
+# Manually triggered by a maintainer. Not run on push/PR.
+on:
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Optional extra image tag, in addition to the git SHA and "latest". Leave blank to skip.'
+        required: false
+        default: ''
+      index:
+        description: 'Override the index.html file via the Dockerfile ARG `index`. Default: index.html.'
+        required: false
+        default: 'index.html'
+      environment:
+        description: 'Override the runtime environment via the Dockerfile ARG `environment`. Default: prod.'
+        required: false
+        default: 'prod'
+
+# The automatically-provided GITHUB_TOKEN must be allowed to push packages to GHCR.
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    name: Build and push image (podman)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Compute lowercase image name
+        id: repo
+        # GHCR rejects uppercase characters in image names, so lowercase the
+        # full repository identifier (owner/repo).
+        run: |
+          echo "name=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GitHub Container Registry
+        # The automatically-provided GITHUB_TOKEN has packages: write (see above)
+        # and is used to authenticate to ghcr.io via podman.
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | podman login ghcr.io \
+                --username '${{ github.actor }}' \
+                --password-stdin
+
+      - name: Build image with podman
+        # Build context is the repository root (== frontend project dir for this
+        # standalone repo), where the Dockerfile and source files live.
+        env:
+          # Map workflow_dispatch inputs into env vars to avoid shell injection
+          # through the maintainer-supplied input values.
+          INPUT_INDEX: ${{ inputs.index }}
+          INPUT_ENVIRONMENT: ${{ inputs.environment }}
+          IMAGE: ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}
+          SHA_TAG: ${{ github.sha }}
+        run: |
+          podman build \
+            --build-arg "index=${INPUT_INDEX}" \
+            --build-arg "environment=${INPUT_ENVIRONMENT}" \
+            --file ./Dockerfile \
+            --tag "${IMAGE}:${SHA_TAG}" \
+            .
+
+      - name: Tag image (latest + optional input tag)
+        env:
+          INPUT_IMAGE_TAG: ${{ inputs.image_tag }}
+          IMAGE: ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}
+          SHA_TAG: ${{ github.sha }}
+        run: |
+          podman tag "${IMAGE}:${SHA_TAG}" "${IMAGE}:latest"
+          if [ -n "${INPUT_IMAGE_TAG}" ]; then
+            podman tag "${IMAGE}:${SHA_TAG}" "${IMAGE}:${INPUT_IMAGE_TAG}"
+          fi
+
+      - name: Push image to ghcr.io
+        env:
+          INPUT_IMAGE_TAG: ${{ inputs.image_tag }}
+          IMAGE: ${{ env.REGISTRY }}/${{ steps.repo.outputs.name }}
+          SHA_TAG: ${{ github.sha }}
+        run: |
+          podman push "${IMAGE}:${SHA_TAG}"
+          podman push "${IMAGE}:latest"
+          if [ -n "${INPUT_IMAGE_TAG}" ]; then
+            podman push "${IMAGE}:${INPUT_IMAGE_TAG}"
+          fi
+
+      - name: Logout from GitHub Container Registry
+        if: always()
+        shell: bash
+        run: podman logout ghcr.io || true
