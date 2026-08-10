@@ -1,0 +1,27 @@
+# Install at /opt/frontend/podman-compose.yml (root:root 0644).
+#
+# The running image tag is NOT baked into this file. deploy.sh writes a single
+# line `IMAGE=ghcr.io/blue-blip-droid/frontend:<tag>` to /opt/frontend/.deploy;
+# the systemd unit (frontend.service) loads that file with
+# EnvironmentFile=-/opt/frontend/.deploy and podman-compose interpolates the
+# value below. That is why the service image is `${IMAGE}`. deploy.sh runs
+# `podman-compose -f /opt/frontend/podman-compose.yml down/up -d` against this
+# file after updating .deploy, so the freshly pulled tag is what comes up.
+services:
+  frontend:
+    image: ${IMAGE:?IMAGE not set — run deploy.sh, which writes /opt/frontend/.deploy}
+    container_name: frontend
+    pull_policy: never
+    restart: unless-stopped
+    # Bind the host's loopback:8080 to the container's Caddy :80. The 127.0.0.1
+    # bind keeps the service private by default (safe for rootless podman and
+    # for sitting behind a reverse proxy). To expose it publicly, either drop
+    # the 127.0.0.1 prefix or change the host port to suit your reverse proxy.
+    ports:
+      - "127.0.0.1:8080:80"
+    # Placeholder: uncomment and extend to inject runtime config into the
+    # container (e.g. environment variables) or mount host paths.
+    # environment:
+    #   - EXAMPLE=value
+    # volumes:
+    #   - /opt/frontend/data:/data
