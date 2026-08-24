@@ -120,7 +120,7 @@
             <img src="assets/diamond/desologo.svg" width="14" height="14" />
             <span>≈{{ globalVars.desoToUSDExchangeRateToDisplay }} USD</span>
           </div>
-          <a href="/buy-deso" class="fc-blue fs-15px font-weight-bold">{{ "left_bar.buy" | transloco }}</a>
+          <a *ngIf="globalVars.swapFlowsEnabled" href="/buy-deso" class="fc-blue fs-15px font-weight-bold">{{ "left_bar.buy" | transloco }}</a>
         </div>
         <div class="w-100 border-bottom"></div>
         <div class="fc-default cursor-pointer p-16px ml-4px" (click)="launchLogoutFlow()">

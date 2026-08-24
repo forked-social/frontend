@@ -1,42 +1,58 @@
 // This file can be replaced during build by using the `fileReplacements` array.
-// `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
-// The list of file replacements can be found in `angular.json`.
+// `ng build --configuration production` replaces `environment.ts` with
+// `environment.prod.ts` (the forked-social config). The list of file
+// replacements can be found in `angular.json`.
+
+// Runtime overrides: index.html loads /env-config.js (a plain asset) before
+// the Angular bundle; it defines window.__FORKED_RUNTIME_ENV__. In containers
+// run.sh regenerates that file at startup from environment variables. For
+// local dev, edit src/env-config.js (or define the global in an index.html
+// override). Unset values fall back to the compiled defaults below.
+const runtimeEnv: { [key: string]: string } =
+  (typeof window !== "undefined" && (window as any).__FORKED_RUNTIME_ENV__) || {};
 
 export const environment = {
   production: false,
-  uploadImageHostname: "node.deso.org",
-  verificationEndpointHostname: "https://node.deso.org",
-  uploadVideoHostname: "media.deso.org",
-  identityURL: "https://identity.deso.org",
-  apiInternalHostname: "https://diamondapp.com",
-  webPushServerVapidPublicKey:
-    "BBt2v52sa0J-1D6w25XGk-eXqSOWdnfddV256XXI1B-UZlfX-HSIDzv4TkXbTLhHHNjDc45yZ8jsZWsXWg2CbF0",
-  supportEmail: "",
+  // Dev defaults point at the standalone fork network as well: it is the only
+  // chain these apps target. There is no separate dev/testnet deployment.
+  uploadImageHostname: "node.forked.social",
+  verificationEndpointHostname: "https://node.forked.social",
+  uploadVideoHostname: "media.forked.social",
+  identityURL: "https://identity.forked.social",
+  apiInternalHostname: "https://forked.social",
+  // Web-push VAPID public key (base64url), supplied at runtime via
+  // WEBPUSH_VAPID_PUBLIC_KEY (see /env-config.js above). Empty = browser push
+  // subscriptions disabled (see global-vars.service.ts).
+  webPushServerVapidPublicKey: runtimeEnv.webPushVapidPublicKey || "",
+  supportEmail: "support@forked.social",
   dd: {
-    apiKey: "DCEB26AC8BF47F1D7B4D87440EDCA6",
-    jsPath: "https://diamondapp.com/tags.js",
-    ajaxListenerPath: "diamondapp.com/api",
-    endpoint: "https://diamondapp.com/js/",
+    apiKey: "",
+    jsPath: "",
+    ajaxListenerPath: "",
+    endpoint: "",
   },
   amplitude: {
-    key: "ba127556985bcf271b9bb1eee6834918",
-    domain: "amp.diamondapp.com",
+    key: "",
+    domain: "",
   },
   heap: {
-    appId: "1382101420",
+    appId: "",
   },
   hotjar: {
     hjid: "",
   },
   node: {
-    id: 3,
-    name: "Diamond",
-    url: "https://diamondapp.com",
+    id: 1,
+    name: "Forked Social",
+    url: "https://node.forked.social",
+    // TODO(rebrand): swap for a dedicated fork asset dir when fork branding assets exist.
     logoAssetDir: "/assets/diamond/",
   },
-  megaswapURL: "https://heroswap.com",
-  megaswapAPI: "https://heroswap.com",
-  megaswapAffiliateAddress: "BC1YLgTKfwSeHuNWtuqQmwduJM2QZ7ZQ9C7HFuLpyXuunUN7zTEr5WL",
-  openfundURL: "https://openfund.com",
-  setuAPI: "https://web3setu.co.in",
+  megaswapURL: "",
+  megaswapAPI: "",
+  megaswapAffiliateAddress: "",
+  openfundURL: "",
+  setuAPI: "",
+  // Founder-root app-owner key of the fork (replaces upstream DIAMOND_APP_PUBLIC_KEY).
+  appOwnerPublicKey: "FS13vrbSsSrefiNeoJK5uHMKgCwzJJ3NMCFdEKpui7qPX4X7xSLSko",
 };

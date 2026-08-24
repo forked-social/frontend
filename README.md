@@ -22,6 +22,8 @@ docs should give you everything you need to get started:
 
 ## Start Coding
 
+Runtime configuration: `src/env-config.js` (served as `/env-config.js`) defines `window.__FORKED_RUNTIME_ENV__`, which overrides the compiled environment defaults — for local dev, set a value there; in containers `run.sh` regenerates that file at startup from `WEBPUSH_VAPID_PUBLIC_KEY`.
+
 The quickest way to contribute changes to DiamondApp is the following these steps:
 
 1. Open frontend repo in Gitpod

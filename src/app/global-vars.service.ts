@@ -172,6 +172,14 @@ export class GlobalVarsService {
   // Whether or not to show the Buy DeSo with USD flow.
   showBuyWithUSD = false;
 
+  // Whether crypto buy/swap (megaswap/heroswap) deposit flows are enabled.
+  // These flows settle through the configured swap provider; upstream providers
+  // only exist for the OLD DeSo network, so with no provider configured in the
+  // environment (fork default) every entry point must be hidden.
+  get swapFlowsEnabled(): boolean {
+    return !!environment.megaswapURL && !!environment.megaswapAPI;
+  }
+
   // Whether or not to show the Jumio verification flow.
   showJumio = false;
 
@@ -359,6 +367,10 @@ export class GlobalVarsService {
 
   async createWebPushEndpoint() {
     if (!this.browserSupportsWebPush) return;
+    // Web push is disabled unless a VAPID public key is configured (the fork
+    // ships an empty key; supplying an empty one to pushManager.subscribe only
+    // produces a DOMException).
+    if (!environment.webPushServerVapidPublicKey) return;
 
     const pushServerPublicKey = environment.webPushServerVapidPublicKey;
     const applicationServerKey = this.urlBase64ToUint8Array(pushServerPublicKey);
@@ -1226,17 +1238,14 @@ export class GlobalVarsService {
     this.usdPerBitcoinExchangeRate = 10000;
     this.defaultFeeRateNanosPerKB = 1000.0;
 
+    // Version-bumped from lastLocalNodeV2 so returning visitors do not keep a
+    // stale upstream node (e.g. node.deso.org) pinned in localStorage.
     this.localNode = this.backendApi.GetStorage(this.backendApi.LastLocalNodeKey);
 
-    this.localNode = "https://node.deso.org";
-
     if (!this.localNode) {
-      const hostname = (window as any).location.hostname;
-      if (environment.production) {
-        this.localNode = hostname;
-      } else {
-        this.localNode = `${hostname}:18001`;
-      }
+      // The fork app always defaults to the environment's node (the only
+      // network it targets). A hostname-based default is no longer used.
+      this.localNode = environment.node.url;
 
       this.backendApi.SetStorage(this.backendApi.LastLocalNodeKey, this.localNode);
     }
@@ -1442,15 +1451,24 @@ export class GlobalVarsService {
     const hostname = new URL(nodeURI).hostname;
 
     switch (hostname) {
-      case "node.deso.org":
-      case "diamondapp.com":
-      case "dev.diamondapp.com":
-        return DeSoNetwork.mainnet;
+      // The fork network is mainnet-style (FS1... public keys). Every forked.social
+      // host resolves to it so deso-protocol derives FS1 prefixes and identity
+      // launches without testnet=true.
+      case "forked.social":
+      case "www.forked.social":
+      case "node.forked.social":
+      case "identity.forked.social":
+      case "explorer.forked.social":
+      case "media.forked.social":
       case "localhost":
-      case "test.deso.org":
+        return DeSoNetwork.mainnet;
+      // Fork testnet-style build target (tFS... public keys).
+      case "test.forked.social":
         return DeSoNetwork.testnet;
       default:
-        return environment.production ? DeSoNetwork.mainnet : DeSoNetwork.testnet;
+        // Never fall back to an upstream network: unknown hosts are treated as
+        // the fork's mainnet-style chain.
+        return DeSoNetwork.mainnet;
     }
   }
 

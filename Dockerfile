@@ -8,6 +8,7 @@ RUN apk add git
 COPY ./package.json .
 COPY ./package-lock.json .
 COPY ./.npmrc .
+COPY ./patches ./patches
 
 # install frontend dependencies before copying the frontend code
 # into the container so we get docker cache benefits
@@ -33,7 +34,9 @@ ARG index=index.html
 COPY ./src/$index ./src/index.html
 
 # use --build-arg environment=custom to specify a custom environment
-ARG environment=prod
+# (default: forked-social production config; file is copied over
+# environment.prod.ts which angular.json uses for the production build)
+ARG environment=forked
 
 # overwrite default environment file with custom file
 COPY ./src/environments/environment.$environment.ts ./src/environments/environment.prod.ts

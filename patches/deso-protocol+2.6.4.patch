@@ -1,0 +1,70 @@
+diff --git a/node_modules/deso-protocol/src/data/api.js b/node_modules/deso-protocol/src/data/api.js
+index 80f8897..b5b09e8 100644
+--- a/node_modules/deso-protocol/src/data/api.js
++++ b/node_modules/deso-protocol/src/data/api.js
+@@ -109,7 +109,7 @@ class DeSoNodeClient extends APIClient {
+             enumerable: true,
+             configurable: true,
+             writable: true,
+-            value: 'https://node.deso.org'
++            value: 'https://node.forked.social'
+         });
+     }
+     get nodeURI() {
+@@ -128,7 +128,7 @@ class DeSoMediaClient extends APIClient {
+             enumerable: true,
+             configurable: true,
+             writable: true,
+-            value: 'https://media.deso.org'
++            value: 'https://media.forked.social'
+         });
+     }
+     get mediaURI() {
+diff --git a/node_modules/deso-protocol/src/identity/constants.js b/node_modules/deso-protocol/src/identity/constants.js
+index 013c2b9..ef24dc0 100644
+--- a/node_modules/deso-protocol/src/identity/constants.js
++++ b/node_modules/deso-protocol/src/identity/constants.js
+@@ -1,5 +1,5 @@
+-export const DEFAULT_IDENTITY_URI = 'https://identity.deso.org';
+-export const DEFAULT_NODE_URI = 'https://blockproducer.deso.org';
++export const DEFAULT_IDENTITY_URI = 'https://identity.forked.social';
++export const DEFAULT_NODE_URI = 'https://node.forked.social';
+ export const IDENTITY_SERVICE_VALUE = 'identity';
+ // Error messages
+ export const NO_MONEY_ERROR = 'User does not have sufficient funds in their wallet to complete the transaction';
+@@ -19,11 +19,11 @@ export const DEFAULT_PERMISSIONS = Object.freeze({
+ export const PUBLIC_KEY_PREFIXES = Object.freeze({
+     mainnet: {
+         bitcoin: [0x00],
+-        deso: [0xcd, 0x14, 0x0],
++        deso: [0x05, 0x01, 0xed],
+     },
+     testnet: {
+         bitcoin: [0x6f],
+-        deso: [0x11, 0xc2, 0x0],
++        deso: [0x11, 0xc8, 0x7d],
+     },
+ });
+ export const LOCAL_STORAGE_KEYS = Object.freeze({
+diff --git a/node_modules/deso-protocol/src/identity/identity.js b/node_modules/deso-protocol/src/identity/identity.js
+index 5425a59..381a773 100644
+--- a/node_modules/deso-protocol/src/identity/identity.js
++++ b/node_modules/deso-protocol/src/identity/identity.js
+@@ -166,7 +166,7 @@ export class Identity {
+      * });
+      * ```
+      */
+-    configure({ identityURI = DEFAULT_IDENTITY_URI, network = 'mainnet', nodeURI = 'https://node.deso.org', spendingLimitOptions = DEFAULT_TRANSACTION_SPENDING_LIMIT, redirectURI, jwtAlgorithm = 'ES256', appName = '', storageProvider, identityPresenter, showSkip, }) {
++    configure({ identityURI = DEFAULT_IDENTITY_URI, network = 'mainnet', nodeURI = 'https://node.forked.social', spendingLimitOptions = DEFAULT_TRANSACTION_SPENDING_LIMIT, redirectURI, jwtAlgorithm = 'ES256', appName = '', storageProvider, identityPresenter, showSkip, }) {
+         __classPrivateFieldSet(this, _Identity_identityURI, identityURI, "f");
+         __classPrivateFieldSet(this, _Identity_network, network, "f");
+         __classPrivateFieldSet(this, _Identity_nodeURI, nodeURI, "f");
+@@ -467,7 +467,7 @@ export class Identity {
+      *
+      * @example
+      * ```typescript
+-     * const transactionObject = await myApiClient.post('https://node.deso.org/api/v0/submit-post', { ...data });
++     * const transactionObject = await myApiClient.post('https://node.forked.social/api/v0/submit-post', { ...data });
+      *
+      * await identity.signAndSubmit(transactionObject);
+      * ```

@@ -76,17 +76,15 @@ const desoExplorerTypeConversion = {
 
 const MAINNET_EXPLORER_URLS = {
   blockcypher: "https://live.blockcypher.com/btc",
-  deso: "https://node.deso.org",
+  deso: "https://node.forked.social",
   etherscan: "https://etherscan.io",
-  megaswap: "https://heroswap.com",
   solana: "https://explorer.solana.com",
 };
 
 export const TESTNET_EXPLORER_URLS = {
   blockcypher: "https://live.blockcypher.com/btc-testnet",
-  deso: "https://test.deso.org",
+  deso: "https://test.forked.social",
   etherscan: "https://goerli.etherscan.io",
-  megaswap: "https://dev.heroswap.com",
   solana: "https://explorer.solana.com?cluster=devnet",
 };
 
@@ -178,9 +176,9 @@ export class MegaswapService {
         const { origin, search } = new URL(explorerUrls.solana);
         return `${origin}/${type}/${value}${search}`;
       case "DESO":
-        return `https://explorer.deso.org/?query-node=${explorerUrls.deso}&${desoExplorerTypeConversion[type]}=${value}`;
+        return `https://explorer.forked.social/?query-node=${explorerUrls.deso}&${desoExplorerTypeConversion[type]}=${value}`;
       case "DUSD":
-        return `https://explorer.deso.org/?query-node=${explorerUrls.deso}&${desoExplorerTypeConversion[type]}=${value}`;
+        return `https://explorer.forked.social/?query-node=${explorerUrls.deso}&${desoExplorerTypeConversion[type]}=${value}`;
       case "USDC":
         return `${explorerUrls.etherscan}/${type}/${value}`;
       default:

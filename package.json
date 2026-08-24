@@ -4,13 +4,14 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "patch-package && ng build",
     "generate": "ng generate",
     "test": "ng test",
     "lint": "ng lint --fix",
     "e2e": "ng e2e",
-    "build_prod": "ng build --configuration production --base-href / --deploy-url /",
-    "ngcc": "ngcc --properties es2015"
+    "build_prod": "patch-package && ng build --configuration production --base-href / --deploy-url /",
+    "ngcc": "ngcc --properties es2015",
+    "postinstall": "patch-package"
   },
   "browserslist": [
     "> 5%"
@@ -86,6 +87,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
     "ng-packagr": "^15.2.2",
+    "patch-package": "^6.5.1",
     "prettier": "^2.2.1",
     "protractor": "~7.0.0",
     "ts-node": "~7.0.0",

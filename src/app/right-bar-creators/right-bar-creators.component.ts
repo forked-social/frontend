@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { BsModalService } from "ngx-bootstrap/modal";
 import { of } from "rxjs";
 import { map, switchMap, takeWhile } from "rxjs/operators";
-import { environment } from "../../environments/environment";
 import { BackendApiService } from "../backend-api.service";
 import { BuyDesoModalComponent } from "../buy-deso-page/buy-deso-modal/buy-deso-modal.component";
 import { GlobalVarsService } from "../global-vars.service";
@@ -68,12 +67,14 @@ export class RightBarCreatorsComponent implements OnInit, OnDestroy {
   static GAINERS: RightBarTabOption = {
     name: "right_bar.creators.top_daily_gainers",
     width: 175,
-    poweredBy: { name: "Altumbase", link: `https://altumbase.com/tools?${environment.node.name}` },
+    // Disabled for the fork: altumbase indexes the OLD DeSo network, so there
+    // is no external leaderboard to credit nor link to.
+    poweredBy: null,
   };
   static DIAMONDS: RightBarTabOption = {
     name: "right_bar.creators.top_daily_diamond_creators",
     width: 275,
-    poweredBy: { name: "Altumbase", link: `https://altumbase.com/tools?${environment.node.name}` },
+    poweredBy: null,
   };
   // static HASHTAGS: RightBarTabOption = {
   //   name: "Top Daily Hashtags",

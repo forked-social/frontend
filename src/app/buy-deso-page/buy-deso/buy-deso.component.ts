@@ -28,7 +28,10 @@ export class BuyDeSoComponent implements OnInit {
   static BUY_ON_CB = "Buy on Coinbase";
   static CB_LINK = "https://www.coinbase.com/price/decentralized-social";
 
-  buyTabs = [BuyDeSoComponent.BUY_WITH_MEGASWAP, /*BuyDeSoComponent.BUY_WITH_USD,*/ BuyDeSoComponent.BUY_ON_CB];
+  // Swap-provider deposits are hidden unless a provider is configured in the
+  // environment (the fork ships none: upstream providers only settle against
+  // the OLD DeSo network). Default to the external link tab in that case.
+  buyTabs: string[] = [BuyDeSoComponent.BUY_ON_CB];
   activeTab?: string;
   linkTabs = { [BuyDeSoComponent.BUY_ON_CB]: BuyDeSoComponent.CB_LINK };
 
@@ -44,7 +47,12 @@ export class BuyDeSoComponent implements OnInit {
       }
     });
 
-    this.activeTab = this.activeTabInput ?? BuyDeSoComponent.BUY_WITH_MEGASWAP;
+    if (this.globalVars.swapFlowsEnabled) {
+      this.buyTabs = [BuyDeSoComponent.BUY_WITH_MEGASWAP, /*BuyDeSoComponent.BUY_WITH_USD,*/ BuyDeSoComponent.BUY_ON_CB];
+    }
+    this.activeTab =
+      this.activeTabInput ??
+      (this.globalVars.swapFlowsEnabled ? BuyDeSoComponent.BUY_WITH_MEGASWAP : BuyDeSoComponent.BUY_ON_CB);
 
     window.addEventListener("message", (event: MessageEvent) => {
       if (event.origin !== environment.megaswapURL) return;

@@ -1,7 +1,7 @@
 # Install at /opt/frontend/podman-compose.yml (root:root 0644).
 #
 # The running image tag is NOT baked into this file. deploy.sh writes a single
-# line `IMAGE=ghcr.io/blue-blip-droid/frontend:<tag>` to /opt/frontend/.deploy;
+# line `IMAGE=ghcr.io/forked-social/frontend:<tag>` to /opt/frontend/.deploy;
 # the systemd unit (frontend.service) loads that file with
 # EnvironmentFile=-/opt/frontend/.deploy and podman-compose interpolates the
 # value below. That is why the service image is `${IMAGE}`. deploy.sh runs
@@ -19,9 +19,11 @@ services:
     # the 127.0.0.1 prefix or change the host port to suit your reverse proxy.
     ports:
       - "127.0.0.1:8080:80"
-    # Placeholder: uncomment and extend to inject runtime config into the
-    # container (e.g. environment variables) or mount host paths.
-    # environment:
-    #   - EXAMPLE=value
+    # Runtime config passthrough: run.sh generates /env-config.js from this
+    # before Caddy starts; the app bundle merges it over its compiled
+    # defaults. A blank value (the default) keeps browser push disabled.
+    environment:
+      # Web-push VAPID public key (base64url, 65-byte key without prefix).
+      - WEBPUSH_VAPID_PUBLIC_KEY=
     # volumes:
     #   - /opt/frontend/data:/data

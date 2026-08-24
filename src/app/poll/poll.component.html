@@ -15,6 +15,7 @@
       .
 
       <a
+        *ngIf="environment.openfundURL"
         [href]="environment.openfundURL + '/trade/' + pollWeightTokenProfile.ProfileEntryResponse.Username"
         target="_blank"
       >

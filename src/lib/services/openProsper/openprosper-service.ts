@@ -1,7 +1,7 @@
 //@ts-strict
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
 
 export interface OpenProsperAPIResult<T> {
@@ -47,14 +47,10 @@ export enum OpenProsperLeaderboardType {
   Hashtags = "trending-hashtags-x8k6jw1",
 }
 
-const buildURL = (endpoint: string) => `https://openprosperapi.xyz/api/v0/${endpoint}`;
-const API_HEADERS = {
-  // NOTE: the api requires this header, but it's currently not used for
-  // anything, so just setting it to a dummy placeholder value. we may need to
-  // revisit this if the api changes how it handles it.
-  "op-token": "0",
-};
-
+// DISABLED FOR THE FORK: openprosperapi.xyz is an indexer for the OLD DeSo
+// network. It does not track the fork chain, so the service is stubbed out and
+// returns empty results (no network calls). Consumers render empty/hidden UI.
+// Re-enable by restoring the HTTP implementations.
 @Injectable({
   providedIn: "root",
 })
@@ -62,16 +58,10 @@ export class OpenProsperService {
   constructor(private httpClient: HttpClient) {}
 
   getTrendingHashtagsPage(): Observable<OpenProsperHashtags[]> {
-    return this.httpClient
-      .get<OpenProsperAPIResult<OpenProsperTopHashtags>>(buildURL(`p/social/${OpenProsperLeaderboardType.Hashtags}`))
-      .pipe(map((res) => res.value.Hours24.Top10Hashtags));
+    return of([]);
   }
 
   getAggregateEarnings(): Observable<OpenProsperAggregateEarnings> {
-    return this.httpClient
-      .post<OpenProsperAPIResult<OpenProsperAggregateEarnings>>(buildURL("p/economic/creator-earnings"), null, {
-        headers: API_HEADERS,
-      })
-      .pipe(map((r) => r.value));
+    return of({ last24h: 0, last7d: 0, last30d: 0, allTime: 0 });
   }
 }

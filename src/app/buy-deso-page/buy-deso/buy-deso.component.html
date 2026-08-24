@@ -18,6 +18,9 @@
         <div *ngIf="activeTab === BuyDeSoComponent.BUY_WITH_MEGASWAP">
           <buy-deso-megaswap [depositTicker]="depositTicker"></buy-deso-megaswap>
         </div>
+        <div *ngIf="!globalVars.swapFlowsEnabled" class="p-16px fs-15px text-grey7">
+          Buying $DESO with crypto is not available on this network.
+        </div>
         <!--        <div *ngIf="activeTab === BuyDeSoComponent.BUY_WITH_USD && globalVars.showBuyWithUSD">-->
         <!--          <buy-deso-usd></buy-deso-usd>-->
         <!--        </div>-->

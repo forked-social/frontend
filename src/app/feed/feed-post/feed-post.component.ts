@@ -46,7 +46,8 @@ import { NFTEntryResponse, PostAssociationResponse, PostEntryResponse, Associati
 const DEPRECATED_CUSTOM_ATTRIBUTIONS = {
   setu_deso: {
     text: "Setu Deso",
-    link: "https://web3setu.com",
+    // Fork: no upstream setu service exists; render text without an external link.
+    link: "",
   },
 };
 
@@ -787,7 +788,7 @@ export class FeedPostComponent implements OnInit {
     if (this.postContent.VideoURLs && this.postContent.VideoURLs.length > 0) {
       if (this.isCloudflareVideo(this.postContent.VideoURLs[0])) {
         const cloudflareVideoId = this.getCloudflareVideoId(this.postContent.VideoURLs[0]);
-        this.videoURL = `https://videos.deso.org/${cloudflareVideoId}.mp4`;
+        this.videoURL = `https://media.forked.social/${cloudflareVideoId}.mp4`;
         return;
       }
       if (this.isPinataVideo(this.postContent.VideoURLs[0])) {
@@ -898,9 +899,10 @@ export class FeedPostComponent implements OnInit {
   }
 
   mapImageURLs(imgURL: string): string {
-    if (imgURL.startsWith("https://i.imgur.com")) {
-      return imgURL.replace("https://i.imgur.com", "https://images.bitclout.com/i.imgur.com");
-    }
+    // Serve image URLs as posted: the fork media service does NOT implement
+    // an i.imgur.com passthrough (an earlier rewrite to
+    // media.forked.social/i.imgur.com broke those images). CSP img-src
+    // already allows i.imgur.com directly.
     return imgURL;
   }
 

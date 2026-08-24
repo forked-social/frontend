@@ -47,99 +47,41 @@ export const LeaderboardToDataAttribute = {
   [PulseLeaderboardType.Diamonds]: "diamonds",
 };
 
+// DISABLED FOR THE FORK: pulse.bitclout.com is an indexer for the OLD DeSo
+// network. It does not track the fork chain, so the service is stubbed out and
+// returns empty results (no network calls). Consumers render empty/hidden
+// leaderboards. Re-enable by restoring the HTTP implementations.
 @Injectable({
   providedIn: "root",
 })
 export class PulseService {
-  static pulseApiURL = "https://pulse.bitclout.com/api/bitclout/leaderboard";
-  static pulseRef = "ref=bcl";
-  static pulsePageSize = 20;
   constructor(
     private httpClient: HttpClient,
     private backendApi: BackendApiService,
     private globalVars: GlobalVarsService
   ) {}
 
-  constructPulseURL(
-    leaderboardType: string,
-    pageIndex: number = 0,
-    pageSize: number = PulseService.pulsePageSize
-  ): string {
-    return `${PulseService.pulseApiURL}/${leaderboardType}?${PulseService.pulseRef}&page_size=${pageSize}&page_index=${pageIndex}`;
-  }
-
   getDiamondsReceivedLeaderboard(): Observable<any> {
-    return this.getDiamondsReceivedPage(0);
+    return of([]);
   }
 
   getDiamondsReceivedPage(
     pageNumber: number,
-    pageSize: number = PulseService.pulsePageSize,
+    pageSize: number = 20,
     skipFilters = false
   ): Observable<any> {
-    return this.httpClient.get(this.constructPulseURL(PulseLeaderboardType.Diamonds, pageNumber, pageSize)).pipe(
-      switchMap((res: PulseLeaderboardResponse) => {
-        return this.getProfilesForPulseLeaderboard(res, PulseLeaderboardType.Diamonds, skipFilters);
-      })
-    );
+    return of([]);
   }
 
   getDeSoLockedLeaderboard(): Observable<LeaderboardResponse[]> {
-    return this.getDeSoLockedPage(0);
+    return of([]);
   }
 
   getDeSoLockedPage(
     pageNumber: number,
-    pageSize: number = PulseService.pulsePageSize,
+    pageSize: number = 20,
     skipFilters = false
   ): Observable<any> {
-    return this.httpClient
-      .get(this.constructPulseURL(PulseLeaderboardType.DeSoLocked, pageNumber, pageSize))
-      .pipe(
-        switchMap((res: PulseLeaderboardResponse) =>
-          this.getProfilesForPulseLeaderboard(res, PulseLeaderboardType.DeSoLocked, skipFilters)
-        )
-      );
-  }
-
-  getProfilesForPulseLeaderboard(
-    res: PulseLeaderboardResponse,
-    leaderboardType: PulseLeaderboardType,
-    skipFilters: boolean = false
-  ): Observable<LeaderboardResponse[]> {
-    const results = res.results;
-    if (results.length === 0) {
-      return of([]);
-    }
-    return this.backendApi
-      .GetUsersStateless(
-        results.map((result) => result.public_key),
-        true
-      )
-      .pipe(
-        map((res: any) => {
-          if (!skipFilters) {
-            res.UserList = _.filter(res.UserList, (o) => o.ProfileEntryResponse && !o.IsGraylisted && !o.IsBlacklisted);
-            if (res.UserList.length > 10) {
-              res.UserList = res.UserList.slice(0, 10);
-            }
-          }
-
-          return res.UserList.map((user: User, index: number) => {
-            return {
-              User: user,
-              Profile: user.ProfileEntryResponse,
-              DeSoLockedGained:
-                leaderboardType === PulseLeaderboardType.DeSoLocked
-                  ? results[index][LeaderboardToDataAttribute[leaderboardType]]
-                  : null,
-              DiamondsReceived:
-                leaderboardType === PulseLeaderboardType.Diamonds
-                  ? results[index][LeaderboardToDataAttribute[leaderboardType]]
-                  : null,
-            };
-          });
-        })
-      );
+    return of([]);
   }
 }

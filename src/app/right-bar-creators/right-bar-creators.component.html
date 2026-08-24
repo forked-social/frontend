@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="divider"></div>
-      <a (click)="openBuyCloutModal()">
+      <a (click)="openBuyCloutModal()" *ngIf="globalVars.swapFlowsEnabled">
         <div class="d-flex justify-content-center cursor-pointer">
           <div class="buy-deso">
             <span>{{ t("right_bar.creators.buy_deso") }}</span>

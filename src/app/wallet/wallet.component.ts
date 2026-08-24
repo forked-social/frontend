@@ -603,7 +603,7 @@ export class WalletComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   getBlockExplorerLink() {
-    return `https://explorer.deso.org/?public-key=${this.globalVars.loggedInUser?.PublicKeyBase58Check}`;
+    return `https://explorer.forked.social/?public-key=${this.globalVars.loggedInUser?.PublicKeyBase58Check}`;
   }
 
   // getOpenProsperLink() {

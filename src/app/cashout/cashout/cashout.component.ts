@@ -90,7 +90,7 @@ export class CashoutComponent implements OnDestroy, OnChanges {
   constructor(
     public megaswap: MegaswapService,
     private backend: BackendApiService,
-    private globalVars: GlobalVarsService,
+    public globalVars: GlobalVarsService,
     private tracking: TrackingService
   ) {
     const maybeStoredAddresses = window.localStorage.getItem(LAST_USED_ADDRESSES_LOCAL_STORAGE_KEY);
@@ -104,6 +104,13 @@ export class CashoutComponent implements OnDestroy, OnChanges {
   }
 
   ngOnChanges() {
+    // Swap-provider cash-out is disabled unless a provider is configured in
+    // the environment (the fork ships none). Skip all provider API calls.
+    if (!this.globalVars.swapFlowsEnabled) {
+      this.isLoading = false;
+      return;
+    }
+
     this.getDestinationAmountForDepositAmount(1).subscribe((res) => {
       this.destinationAmountForDepositAmount = {
         ...res,
@@ -144,6 +151,9 @@ export class CashoutComponent implements OnDestroy, OnChanges {
   }
 
   onAmountToCashOutChange() {
+    if (!this.globalVars.swapFlowsEnabled) {
+      return;
+    }
     if (typeof this.amountToCashOutInputValue === "number" && this.amountToCashOutInputValue > 0) {
       if (this.availableBalance && this.amountToCashOutInputValue > this.availableBalance) {
         this.cashOutAmountErrorMessage = `${this.amountToCashOutInputValue.toLocaleString()} exceeds your available balance of ${this.availableBalance.toLocaleString()}`;
@@ -162,6 +172,9 @@ export class CashoutComponent implements OnDestroy, OnChanges {
   }
 
   onDestinationAddressChange(ev: Event) {
+    if (!this.globalVars.swapFlowsEnabled) {
+      return;
+    }
     this.depositAddresses = undefined;
     this.megaswap
       .createDepositAddresses({
@@ -203,6 +216,7 @@ export class CashoutComponent implements OnDestroy, OnChanges {
 
   onCashOut() {
     if (this.isPendingCashOut) return;
+    if (!this.globalVars.swapFlowsEnabled) return;
     const DepositAddress = this.depositAddress;
     if (!(this.depositAddresses?.DestinationAddress && DepositAddress)) {
       this.cashOutErrorMessage =

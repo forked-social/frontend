@@ -27,6 +27,14 @@ export class BuyDeSoMegaSwapComponent implements OnInit {
 
   ngOnInit() {
     window.scroll(0, 0);
+    // Swap provider flows are disabled unless a provider is configured in the
+    // environment (the fork ships none — upstream providers only settle against
+    // the OLD DeSo network).
+    if (!environment.megaswapURL) {
+      this.iframeURL = "";
+      return;
+    }
+
     if (this.theme === "default" && window.matchMedia("(prefers-color-scheme: dark)").matches) {
       this.theme = "dark-gray";
     }

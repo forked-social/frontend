@@ -166,7 +166,9 @@ export class BackendApiService {
   static GET_PROFILES_ORDER_BY_INFLUENCER_COIN_PRICE = "influencer_coin_price";
   static BUY_CREATOR_COIN_OPERATION_TYPE = "buy";
   static SELL_CREATOR_COIN_OPERATION_TYPE = "sell";
-  static DIAMOND_APP_PUBLIC_KEY = "BC1YLgTKfwSeHuNWtuqQmwduJM2QZ7ZQ9C7HFuLpyXuunUN7zTEr5WL";
+  // App owner (founder-root) public key used as the App scope for post/user
+  // associations. Overridable per environment via environment.appOwnerPublicKey.
+  static DIAMOND_APP_PUBLIC_KEY = environment.appOwnerPublicKey;
 
   // TODO: Cleanup - this should be a configurable value on the node. Leaving it in the frontend
   // is fine for now because BlockCypher has strong anti-abuse measures in place.
@@ -179,7 +181,9 @@ export class BackendApiService {
   IdentityUsersKey = "identityUsers";
 
   // Store last local node URL in localStorage
-  LastLocalNodeKey = "lastLocalNodeV2";
+  // Version-bumped from lastLocalNodeV2 (which returning visitors may have
+  // pinned to the upstream node.deso.org) so everyone starts from the fork node.
+  LastLocalNodeKey = "lastLocalNodeV3";
 
   // Store last logged in user public key in localStorage
   LastLoggedInUserKey = "lastLoggedInUser";
@@ -321,7 +325,9 @@ export class BackendApiService {
   }
 
   UploadImage(UserPublicKeyBase58Check: string, file: File): Observable<any> {
-    return from(uploadImage({UserPublicKeyBase58Check, file}, {nodeURI: "https://node.deso.org"}));
+    // No nodeURI override: the deso-protocol lib uses the nodeURI from
+    // configure() (set from the environment's node in app.component).
+    return from(uploadImage({UserPublicKeyBase58Check, file}));
   }
 
   UploadVideo(file: File, publicKeyBase58Check: string): Observable<UploadVideoV2Response> {
@@ -1244,9 +1250,6 @@ export class BackendApiService {
           FetchStartIndex,
           NumToFetch,
           FilteredOutNotificationCategories,
-        },
-        {
-          nodeURI: "https://node.deso.org",
         }
       )
     );
@@ -1265,9 +1268,6 @@ export class BackendApiService {
           LastSeenIndex,
           LastUnreadNotificationIndex,
           UnreadNotifications,
-        },
-        {
-          nodeURI: "https://node.deso.org",
         }
       )
     );
@@ -1278,9 +1278,6 @@ export class BackendApiService {
       getUnreadNotificationsCount(
         {
           PublicKeyBase58Check,
-        },
-        {
-          nodeURI: "https://node.deso.org",
         }
       )
     );
@@ -1324,7 +1321,7 @@ export class BackendApiService {
   }
 
   GetUserMetadata(PublicKeyBase58Check: string): Observable<GetUserMetadataResponse> {
-    return from(getUserMetadata({PublicKeyBase58Check}, {nodeURI: "https://node.deso.org"}));
+    return from(getUserMetadata({PublicKeyBase58Check}));
   }
 
   AdminGetVerifiedUsers(): Observable<any> {

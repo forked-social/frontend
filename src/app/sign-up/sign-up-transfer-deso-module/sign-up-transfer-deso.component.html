@@ -17,10 +17,14 @@
         A
       </div>
     </div>
-    <div [ngClass]="{ 'ml-20px': !globalVars.isMobile() }" class="w-100">
-      <div [ngClass]="{ 'text-center': globalVars.isMobile() }" class="fs-20px fc-default font-weight-bold mb-16px">
-        Don't have any $DESO? We make it easy to buy.
-      </div>
+  <div
+    *ngIf="globalVars.swapFlowsEnabled"
+    [ngClass]="{ 'ml-20px': !globalVars.isMobile() }"
+    class="w-100"
+  >
+    <div [ngClass]="{ 'text-center': globalVars.isMobile() }" class="fs-20px fc-default font-weight-bold mb-16px">
+      Don't have any $DESO? We make it easy to buy.
+    </div>
       <div class="p-30px mb-20px bg-light br-10px d-flex flex-column align-items-center">
         <div class="fc-default font-weight-bold fs-18px mb-20px text-center">
           Buy DESO with ETH, BTC, fiat, or on Coinbase

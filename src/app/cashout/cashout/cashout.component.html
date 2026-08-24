@@ -1,5 +1,9 @@
 <div class="buy-deso__container p-4 fc-default border">
   <h1 class="font-weight-bold fs-20px mb-4">Cash Out</h1>
+  <div *ngIf="!globalVars.swapFlowsEnabled" class="fs-15px text-grey7">
+    Cashing out $DESO is not available on this network.
+  </div>
+  <ng-container *ngIf="globalVars.swapFlowsEnabled">
   <div class="mb-4">
     <label for="amount-to-cashout-input" class="font-weight-bold">
       ${{ megaswap.formatTicker(depositTicker) }} Amount to cash out
@@ -95,4 +99,5 @@
       [depositEvents]="cashOutHistory"
     ></deposit-event-history>
   </section>
+  </ng-container>
 </div>

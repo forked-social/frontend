@@ -1,38 +1,53 @@
+// Runtime overrides: index.html loads /env-config.js (a plain asset) before
+// the Angular bundle; it defines window.__FORKED_RUNTIME_ENV__. In containers
+// run.sh regenerates that file at startup from environment variables. Unset
+// values fall back to the compiled defaults below (feature stays disabled).
+const runtimeEnv: { [key: string]: string } =
+  (typeof window !== "undefined" && (window as any).__FORKED_RUNTIME_ENV__) || {};
+
 export const environment = {
   production: true,
-  uploadImageHostname: "node.deso.org",
-  verificationEndpointHostname: "https://node.deso.org",
-  apiInternalHostname: "https://diamondapp.com",
-  webPushServerVapidPublicKey:
-    "BBt2v52sa0J-1D6w25XGk-eXqSOWdnfddV256XXI1B-UZlfX-HSIDzv4TkXbTLhHHNjDc45yZ8jsZWsXWg2CbF0",
-  uploadVideoHostname: "media.deso.org",
-  identityURL: "https://identity.deso.org",
-  supportEmail: "",
+  uploadImageHostname: "node.forked.social",
+  verificationEndpointHostname: "https://node.forked.social",
+  apiInternalHostname: "https://forked.social",
+  // Web-push VAPID public key (base64url), supplied at runtime via
+  // WEBPUSH_VAPID_PUBLIC_KEY (see /env-config.js above). Empty = browser push
+  // subscriptions disabled (see global-vars.service.ts).
+  webPushServerVapidPublicKey: runtimeEnv.webPushVapidPublicKey || "",
+  uploadVideoHostname: "media.forked.social",
+  identityURL: "https://identity.forked.social",
+  supportEmail: "support@forked.social",
   dd: {
-    apiKey: "DCEB26AC8BF47F1D7B4D87440EDCA6",
-    jsPath: "https://bitclout.com/tags.js",
-    ajaxListenerPath: "bitclout.com/api",
-    endpoint: "https://bitclout.com/js/",
+    apiKey: "",
+    jsPath: "",
+    ajaxListenerPath: "",
+    endpoint: "",
   },
   amplitude: {
     key: "",
     domain: "",
   },
   heap: {
-    appId: "1382101420",
+    appId: "",
   },
   hotjar: {
     hjid: "",
   },
   node: {
+    // Mirrors backend get-app-state seed node registry ID 1.
     id: 1,
-    name: "DeSo",
-    url: "https://deso.org",
-    logoAssetDir: "/assets/deso/",
+    name: "Forked Social",
+    url: "https://node.forked.social",
+    // TODO(rebrand): swap for a dedicated fork asset dir when fork branding assets exist.
+    logoAssetDir: "/assets/diamond/",
   },
-  megaswapURL: "https://heroswap.com",
-  megaswapAPI: "https://heroswap.com",
-  megaswapAffiliateAddress: "BC1YLgTKfwSeHuNWtuqQmwduJM2QZ7ZQ9C7HFuLpyXuunUN7zTEr5WL",
-  openfundURL: "https://openfund.com",
-  setuAPI: "https://web3setu.co.in",
+  // Buy/swap provider config intentionally blank: heroswap/megaswap/openfund/setu
+  // all settle against the OLD DeSo network and must not be reachable.
+  megaswapURL: "",
+  megaswapAPI: "",
+  megaswapAffiliateAddress: "",
+  openfundURL: "",
+  setuAPI: "",
+  // Founder-root app-owner key of the fork (replaces upstream DIAMOND_APP_PUBLIC_KEY).
+  appOwnerPublicKey: "FS13vrbSsSrefiNeoJK5uHMKgCwzJJ3NMCFdEKpui7qPX4X7xSLSko",
 };
