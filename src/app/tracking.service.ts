@@ -59,7 +59,9 @@ export class TrackingService {
     }
 
     track(eventName, data);
-    this._window.heap.track(eventName, data);
+    if (this._window.heap) {
+      this._window.heap.track(eventName, data);
+    }
   }
 
   identifyUser(publicKey?: string, properties: Record<string, any> = {}) {
