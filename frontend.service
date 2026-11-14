@@ -19,12 +19,22 @@ User=deploy
 Group=deploy
 WorkingDirectory=/opt/frontend
 Environment=HOME=/home/deploy
-Environment=XDG_RUNTIME_DIR=/run/user/%U
+# NO Environment=XDG_RUNTIME_DIR here on purpose: on this systemd (observed
+# on forked-1, systemd 257) the %U specifier in a system unit resolves to 0,
+# the MANAGER's uid -- not User=deploy's -- so /run/user/%U pointed rootless
+# podman at root's runtime dir and podman-compose died with "it seems that
+# you do not have `podman` installed". Each Exec line below resolves the
+# dir at RUNTIME instead: export XDG_RUNTIME_DIR=/run/user/$(id -u)  (id(1)
+# runs as deploy, so the uid is always the right one).
+# A User= service gets the manager's default environment, NOT deploy's
+# login-shell PATH (no PAM session) -- pin the standard search path so
+# podman/podman-compose always resolve, whatever DefaultEnvironment says.
+Environment="PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 EnvironmentFile=-/opt/frontend/.deploy
 
-ExecStartPre=-/bin/sh -c 'cd /opt/frontend && C="$(command -v podman-compose >/dev/null 2>&1 && echo podman-compose || echo podman\ compose)"; exec $C -f /opt/frontend/podman-compose.yml down'
-ExecStart=/bin/sh -c 'cd /opt/frontend && C="$(command -v podman-compose >/dev/null 2>&1 && echo podman-compose || echo podman\ compose)"; exec $C -f /opt/frontend/podman-compose.yml up -d'
-ExecStop=/bin/sh -c 'cd /opt/frontend && C="$(command -v podman-compose >/dev/null 2>&1 && echo podman-compose || echo podman\ compose)"; exec $C -f /opt/frontend/podman-compose.yml down'
+ExecStartPre=-/bin/sh -c 'cd /opt/frontend && export XDG_RUNTIME_DIR=/run/user/$(id -u); C=podman-compose; command -v "$C" >/dev/null 2>&1 || C="podman compose"; exec $C -f /opt/frontend/podman-compose.yml down'
+ExecStart=/bin/sh -c 'cd /opt/frontend && export XDG_RUNTIME_DIR=/run/user/$(id -u); C=podman-compose; command -v "$C" >/dev/null 2>&1 || C="podman compose"; exec $C -f /opt/frontend/podman-compose.yml up -d'
+ExecStop=/bin/sh -c 'cd /opt/frontend && export XDG_RUNTIME_DIR=/run/user/$(id -u); C=podman-compose; command -v "$C" >/dev/null 2>&1 || C="podman compose"; exec $C -f /opt/frontend/podman-compose.yml down'
 
 Restart=on-failure
 RestartSec=5
