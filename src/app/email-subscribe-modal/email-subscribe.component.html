@@ -13,7 +13,7 @@
     <div class="d-flex w-100 align-items-center justify-content-center pt-4">
       <div>
         <button (click)="subscribeToPushNotifications()" class="ml-auto btn btn-primary w-100">
-          <span *ngIf="this.isProcessing"><i class="fas fa-spinner fa-spin ml-5px"></i></span>
+          <span *ngIf="this.isProcessing"><i class="icon-loading icon-spin ml-5px"></i></span>
           <span *ngIf="!this.isProcessing">Subscribe to Push Notifications</span>
         </button>
       </div>

@@ -1,0 +1,42 @@
+Font Awesome Free — vendored subset
+===================================
+
+What this is
+------------
+A minimal, self-hosted subset of Font Awesome Free used by this app:
+
+  fontawesome.min.css           curated stylesheet: @font-face (woff2 only),
+                                .fa/.fas/.far base+family classes, .fa-xs,
+                                and :before glyph rules for exactly the
+                                fa-* classes still referenced in src/.
+  webfonts/fa-solid-900.woff2   solid style (used via .fa and .fas)
+  webfonts/fa-regular-400.woff2 regular style (used via .far)
+  fontawesome-UPSTREAM-LICENSE.txt  verbatim LICENSE.txt from the upstream
+                                package
+
+Source
+------
+Package:  @fortawesome/fontawesome-free
+Version:  5.15.4  (chosen because the app templates use Font Awesome 5
+          primary class names, e.g. fa-check-circle, fa-ellipsis-h,
+          fa-external-link-alt)
+Registry: https://www.npmjs.com/package/@fortawesome/fontawesome-free
+Upstream: https://fontawesome.com
+Extracted via `npm pack @fortawesome/fontawesome-free@5.15.4`; css rules
+          copied verbatim from css/all.css of that package.
+
+What was intentionally NOT vendored
+-----------------------------------
+- webfonts: eot / woff / ttf / svg variants dropped — woff2 is supported by
+  all evergreen browsers; the dead-upstream kit previously loaded is gone.
+- fa-brands-400 (no .fab usage anywhere in src/), light style, SVG/JS
+  framework files, and all glyph rules for icons the app does not use.
+
+License
+-------
+Font Awesome Free is licensed under:
+  Icons: CC BY 4.0      https://creativecommons.org/licenses/by/4.0/
+  Fonts: SIL OFL 1.1    https://scripts.sil.org/OFL
+  Code:  MIT License
+Full text: fontawesome-UPSTREAM-LICENSE.txt and
+           https://fontawesome.com/license/free

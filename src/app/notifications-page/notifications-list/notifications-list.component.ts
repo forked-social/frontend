@@ -658,7 +658,7 @@ export class NotificationsListComponent implements OnInit {
             amount,
             "coin"
           )}`;
-          result.icon = "fas fa-coins fc-green";
+          result.icon = "icon-wallet fc-green";
           return result;
         }
         case "burn": {
@@ -673,7 +673,7 @@ export class NotificationsListComponent implements OnInit {
         }
         case "disable_minting": {
           result.action = `${actorName} disabled minting for ${coinMeta.CreatorUsername} coin`;
-          result.icon = "fas fa-minus-circle fc-red";
+          result.icon = "icon-close fc-red";
           return result;
         }
         case "update_transfer_restriction_status": {
@@ -691,7 +691,7 @@ export class NotificationsListComponent implements OnInit {
       if (!coinTransferMeta) {
         return null;
       }
-      result.icon = "fas fa-money-bill-wave fc-blue";
+      result.icon = "icon-wallet fc-blue";
       result.action = `${actorName} sent you <b>${amountFormatted} ${
         coinTransferMeta.CreatorUsername
       } ${this.globalVars.pluralize(amount, "coin")}`;

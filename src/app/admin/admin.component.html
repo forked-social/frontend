@@ -353,7 +353,7 @@
 
     <!-- Look Up HotFeed User Multipliers (Super Admin Only) -->
     <div class="fs-15px font-weight-bold mt-15px mb-15px px-15px">
-      <i class="fa fa-search"></i>
+      <i class="icon-search"></i>
       &nbsp; Look Up User Interaction Multipliers
       <div class="d-flex align-items-center justify-content-between font-weight-normal mt-5px">
         <input [(ngModel)]="hotFeedUserForSearch" class="form-control fs-15px lh-15px w-100" placeholder="Username" />
@@ -573,7 +573,7 @@
           class="btn-default btn-light fs-15px ml-5px border border-color-grey"
           style="width: 150px"
         >
-          <i class="far fa-times-circle"></i>
+          <i class="icon-close"></i>
           Remove
         </button>
         <button
@@ -635,8 +635,8 @@
 
     <!-- PUBLIC KEYS IN THE DB -->
     <div (click)="_toggleDbDetails()" class="fs-15px px-15px py-15px cursor-pointer">
-      <i *ngIf="!dbDetailsOpen" class="fas fa-caret-right"></i>
-      <i *ngIf="dbDetailsOpen" class="fas fa-caret-down"></i>
+      <i *ngIf="!dbDetailsOpen" class="icon-up-arrow"></i>
+      <i *ngIf="dbDetailsOpen" class="icon-down-arrow"></i>
       <span class="ml-15px">
         <span *ngIf="!dbDetailsLoading">See what's in global state</span>
         <span *ngIf="dbDetailsLoading">Loading...</span>

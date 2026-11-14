@@ -21,7 +21,7 @@
       >
         <div class="d-inline">
           <span *ngIf="!reactionsLoading">{{ globalVars.abbreviateNumber(postReactionCounts.Total, 0) }}</span>
-          <span *ngIf="reactionsLoading"><i class="fas fa-spinner fa-spin pr-1"></i></span>
+          <span *ngIf="reactionsLoading"><i class="icon-loading icon-spin pr-1"></i></span>
         </div>
 
         {{ "feed_post.reaction" | transloco }}{{ postReactionCounts.Total === 1 ? "" : "s" }}

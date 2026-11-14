@@ -61,7 +61,7 @@
       />
       <div class="d-flex w-20">
         <button type="submit" class="ml-auto btn btn-primary">
-          <span *ngIf="this.isSavingEmail"><i class="fas fa-spinner fa-spin ml-5px"></i></span>
+          <span *ngIf="this.isSavingEmail"><i class="icon-loading icon-spin ml-5px"></i></span>
           <span
             *ngIf="
               !this.isSavingEmail &&
@@ -106,10 +106,10 @@
     (click)="notificationDetailsExpanded = !notificationDetailsExpanded"
   >
     <i
-      class="fa pr-5px"
+      class="pr-5px"
       [ngClass]="{
-        'fa-caret-right': !notificationDetailsExpanded,
-        'fa-caret-down': notificationDetailsExpanded
+        'icon-up-arrow': !notificationDetailsExpanded,
+        'icon-down-arrow': notificationDetailsExpanded
       }"
     ></i>
     Advanced notification settings
@@ -258,10 +258,10 @@
             <td class="cursor-pointer pr-30px pl-10px py-10px" (click)="toggleCategoryHidden(category)">
               <span class="category-toggle">
                 <i
-                  class="fa pr-5px"
+                  class="pr-5px"
                   [ngClass]="{
-                    'fa-caret-right': notificationCategories[category]['isHidden'],
-                    'fa-caret-down': !notificationCategories[category]['isHidden']
+                    'icon-up-arrow': notificationCategories[category]['isHidden'],
+                    'icon-down-arrow': !notificationCategories[category]['isHidden']
                   }"
                 ></i>
               </span>

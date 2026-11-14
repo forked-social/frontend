@@ -19,8 +19,8 @@
 
 <div class="fs-15px mt-15px px-15px">
   <span (click)="isOpen.detailedSyncInfo = !isOpen.detailedSyncInfo" class="font-weight-bold cursor-pointer">
-    <i *ngIf="!isOpen.detailedSyncInfo" class="fas fa-caret-right"></i>
-    <i *ngIf="isOpen.detailedSyncInfo" class="fas fa-caret-down"></i>
+    <i *ngIf="!isOpen.detailedSyncInfo" class="icon-up-arrow"></i>
+    <i *ngIf="isOpen.detailedSyncInfo" class="icon-down-arrow"></i>
     Detailed Sync Info
   </span>
   <div *ngIf="isOpen.detailedSyncInfo" class="ml-15px">
@@ -79,8 +79,8 @@
 
 <div class="fs-15px mt-15px px-15px">
   <span (click)="isOpen.minerInfo = !isOpen.minerInfo" class="font-weight-bold cursor-pointer">
-    <i *ngIf="!isOpen.minerInfo" class="fas fa-caret-right"></i>
-    <i *ngIf="isOpen.minerInfo" class="fas fa-caret-down"></i>
+    <i *ngIf="!isOpen.minerInfo" class="icon-up-arrow"></i>
+    <i *ngIf="isOpen.minerInfo" class="icon-down-arrow"></i>
     Miner Info
   </span>
   <div *ngIf="isOpen.minerInfo" class="ml-15px">
@@ -145,8 +145,8 @@
 
 <div class="fs-15px mt-15px px-15px">
   <span (click)="isOpen.desoNode = !isOpen.desoNode" class="font-weight-bold cursor-pointer">
-    <i *ngIf="!isOpen.desoNode" class="fas fa-caret-right"></i>
-    <i *ngIf="isOpen.desoNode" class="fas fa-caret-down"></i>
+    <i *ngIf="!isOpen.desoNode" class="icon-up-arrow"></i>
+    <i *ngIf="isOpen.desoNode" class="icon-down-arrow"></i>
     DeSo Node Info
   </span>
   <div *ngIf="isOpen.desoNode && updatingDeSoPeer" class="ml-15px fc-muted">Updating DeSo peers...</div>

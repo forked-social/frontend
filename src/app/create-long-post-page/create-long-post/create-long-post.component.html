@@ -43,7 +43,7 @@
           </ng-container>
 
           <button class="ml-auto btn btn-primary rounded" type="submit" [disabled]="isSubmittingPost">
-            <span *ngIf="isSubmittingPost"><i class="fas fa-spinner fa-spin ml-5px"></i></span>
+            <span *ngIf="isSubmittingPost"><i class="icon-loading icon-spin ml-5px"></i></span>
             <span *ngIf="!isSubmittingPost">Publish</span>
           </button>
         </div>
@@ -54,7 +54,7 @@
           <ng-container *ngIf="lastAutoSavedAt">
             Draft auto-saved at {{ lastAutoSavedAt }}
 
-            <span *ngIf="isAutoSaving"><i class="fas fa-spinner fa-spin px-1"></i></span>
+            <span *ngIf="isAutoSaving"><i class="icon-loading icon-spin px-1"></i></span>
           </ng-container>
 
           <span *ngIf="!lastAutoSavedAt">You are editing a draft</span>

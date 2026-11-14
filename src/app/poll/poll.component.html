@@ -1,5 +1,5 @@
 <section class="text-center mt-15px">
-  <span *ngIf="loading; else pollCountsLoaded" class="fas fa-spinner fa-spin mb-15px"></span>
+  <span *ngIf="loading; else pollCountsLoaded" class="icon-loading icon-spin mb-15px"></span>
 
   <ng-template #pollCountsLoaded>
     <alert
@@ -81,7 +81,7 @@
           [disabled]="processedVote || !globalVars.loggedInUser"
           class="vote-btn btn btn-outline-primary w-100 mt-8px btn-sm"
         >
-          <span *ngIf="processedVote === pollOption" class="fas fa-spinner fa-spin my-10px"></span>
+          <span *ngIf="processedVote === pollOption" class="icon-loading icon-spin my-10px"></span>
           {{ pollOption }}
         </button>
       </ng-template>

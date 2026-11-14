@@ -2789,7 +2789,7 @@ bs-dropdown-container {
   &.inactive:hover {
     background-color: inherit;
   }
-  &.fa-spinner {
+  &.icon-loading {
     svg {
       display: none;
     }
@@ -6630,4 +6630,15 @@ sell-nft-modal {
 
 .new-draft-blog-modal-container {
   width: 600px !important;
+}
+
+/* Spinner animation for fontello icons (replaces the removed FontAwesome fa-spin) */
+.icon-spin {
+  animation: icon-spin 2s linear infinite;
+}
+
+@keyframes icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
